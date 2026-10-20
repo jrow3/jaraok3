@@ -1,0 +1,230 @@
+import { readdirSync } from 'node:fs';
+import { join } from 'node:path';
+import Database from 'better-sqlite3';
+import { parseTrack } from './filename';
+import { getDb } from './db';
+
+export interface SongRecord {
+	artist: string;
+	title: string;
+	discTag: string | null;
+	hasLyrics: boolean;
+	mp3File: string | null;
+	cdgFile: string | null;
+	videoFile: string | null;
+}
+
+export interface IndexStats {
+	songs: number;
+	withLyrics: number;
+	audioOnly: number;
+	videos: number;
+	orphanCdg: number;
+	skippedMp2: number;
+}
+
+function extensionOf(name: string): string {
+	const dot = name.lastIndexOf('.');
+	return dot === -1 ? '' : name.slice(dot + 1).toLowerCase();
+}
+
+function stemOf(name: string): string {
+	const dot = name.lastIndexOf('.');
+	return dot === -1 ? name : name.slice(0, dot);
+}
+
+function baseOf(pathish: string): string {
+	const slash = Math.max(pathish.lastIndexOf('/'), pathish.lastIndexOf('\\'));
+	return slash === -1 ? pathish : pathish.slice(slash + 1);
+}
+
+interface FileGroup {
+	mp3?: string;
+	cdg?: string;
+	mp2?: string;
+	mp4?: string;
+}
+
+// Groups media by their path-without-extension. A `.mp3` (with optional `.cdg`
+// lyrics) is an audio song; a lone `.mp4` is a downloaded video song. Paths are
+// stored relative to the library root, so callers pass relative paths.
+export function buildSongRecords(paths: string[]): { records: SongRecord[]; stats: IndexStats } {
+	const groups = new Map<string, FileGroup>();
+	for (const rel of paths) {
+		const ext = extensionOf(rel);
+		if (ext !== 'mp3' && ext !== 'cdg' && ext !== 'mp2' && ext !== 'mp4') continue;
+		const key = stemOf(rel);
+		let group = groups.get(key);
+		if (!group) {
+			group = {};
+			groups.set(key, group);
+		}
+		group[ext as keyof FileGroup] = rel;
+	}
+
+	const records: SongRecord[] = [];
+	const stats: IndexStats = {
+		songs: 0,
+		withLyrics: 0,
+		audioOnly: 0,
+		videos: 0,
+		orphanCdg: 0,
+		skippedMp2: 0
+	};
+
+	for (const [key, group] of groups) {
+		if (group.mp2) stats.skippedMp2++;
+		const { artist, title, discTag } = parseTrack(baseOf(key));
+		if (group.mp3) {
+			const hasLyrics = Boolean(group.cdg);
+			records.push({
+				artist,
+				title,
+				discTag,
+				hasLyrics,
+				mp3File: group.mp3,
+				cdgFile: group.cdg ?? null,
+				videoFile: null
+			});
+			stats.songs++;
+			if (hasLyrics) stats.withLyrics++;
+			else stats.audioOnly++;
+		} else if (group.mp4) {
+			records.push({
+				artist,
+				title,
+				discTag,
+				hasLyrics: true,
+				mp3File: null,
+				cdgFile: null,
+				videoFile: group.mp4
+			});
+			stats.songs++;
+			stats.videos++;
+		} else if (group.cdg) {
+			stats.orphanCdg++;
+		}
+	}
+
+	records.sort((a, b) => (a.mp3File ?? a.videoFile ?? '').localeCompare(b.mp3File ?? b.videoFile ?? ''));
+	return { records, stats };
+}
+
+const SCHEMA = `
+	DROP TABLE IF EXISTS songs_fts;
+	DROP TABLE IF EXISTS songs;
+	CREATE TABLE songs (
+		id INTEGER PRIMARY KEY,
+		artist TEXT NOT NULL,
+		title TEXT NOT NULL,
+		disc_tag TEXT,
+		mp3_rel TEXT,
+		cdg_rel TEXT,
+		video_rel TEXT,
+		has_lyrics INTEGER NOT NULL,
+		offset_ms INTEGER NOT NULL DEFAULT 0
+	);
+	CREATE VIRTUAL TABLE songs_fts USING fts5(
+		artist, title, content='songs', content_rowid='id', tokenize='trigram'
+	);
+`;
+
+export interface BuildIndexOptions {
+	libraryPath: string;
+	dbPath: string;
+}
+
+// By default every subfolder is scanned, for libraries kept in Artist/Album folders.
+// LIBRARY_RECURSIVE=off scans only the root and downloads/: a recursive walk of ~90k
+// files on an exFAT USB drive is slow enough that a rescan appears to stall.
+function listMediaPaths(root: string): string[] {
+	if (process.env.LIBRARY_RECURSIVE?.trim().toLowerCase() !== 'off') {
+		// Stored and served with '/', whatever the OS separator.
+		return (readdirSync(root, { recursive: true }) as string[]).map((path) => path.replaceAll('\\', '/'));
+	}
+	const paths = readdirSync(root) as string[];
+	try {
+		for (const name of readdirSync(join(root, 'downloads')) as string[]) {
+			paths.push(`downloads/${name}`);
+		}
+	} catch {
+		// no downloads folder yet
+	}
+	return paths;
+}
+
+export function buildIndex({ libraryPath, dbPath }: BuildIndexOptions): IndexStats {
+	const { records, stats } = buildSongRecords(listMediaPaths(libraryPath));
+
+	const db = new Database(dbPath);
+	try {
+		db.pragma('journal_mode = WAL');
+		// One transaction, now that the app keeps running during a rescan: its searches
+		// read the old index until the new one is complete, never empty tables.
+		const rebuild = db.transaction((rows: SongRecord[]) => {
+			db.exec(SCHEMA);
+			const insert = db.prepare(
+				`INSERT INTO songs (artist, title, disc_tag, mp3_rel, cdg_rel, video_rel, has_lyrics)
+				 VALUES (@artist, @title, @discTag, @mp3File, @cdgFile, @videoFile, @hasLyrics)`
+			);
+			for (const row of rows) {
+				insert.run({
+					artist: row.artist,
+					title: row.title,
+					discTag: row.discTag,
+					mp3File: row.mp3File,
+					cdgFile: row.cdgFile,
+					videoFile: row.videoFile,
+					hasLyrics: row.hasLyrics ? 1 : 0
+				});
+			}
+			db.exec("INSERT INTO songs_fts(songs_fts) VALUES('rebuild')");
+		});
+		rebuild(records);
+	} finally {
+		db.close();
+	}
+
+	return stats;
+}
+
+export interface IndexedVideo {
+	songId: number;
+	artist: string;
+	title: string;
+	discTag: string | null;
+}
+
+// Adds one already-downloaded video (relative path under the library root) to the
+// live index without a full rebuild: one row into `songs`, one matching row into
+// the external-content FTS (which has no triggers). Returns the new song id and
+// the parsed metadata (so callers can show clean artist/title).
+export function indexVideoFile(rel: string): IndexedVideo {
+	const { records } = buildSongRecords([rel]);
+	const rec = records[0];
+	if (!rec || !rec.videoFile) throw new Error(`not a video file: ${rel}`);
+
+	const db = getDb();
+	const existing = db
+		.prepare('SELECT id, artist, title, disc_tag FROM songs WHERE video_rel = ?')
+		.get(rec.videoFile) as
+		| { id: number; artist: string; title: string; disc_tag: string | null }
+		| undefined;
+	if (existing) {
+		return { songId: existing.id, artist: existing.artist, title: existing.title, discTag: existing.disc_tag };
+	}
+
+	const info = db
+		.prepare(
+			`INSERT INTO songs (artist, title, disc_tag, mp3_rel, cdg_rel, video_rel, has_lyrics)
+			 VALUES (@artist, @title, @discTag, NULL, NULL, @videoFile, 1)`
+		)
+		.run({ artist: rec.artist, title: rec.title, discTag: rec.discTag, videoFile: rec.videoFile });
+	const songId = Number(info.lastInsertRowid);
+	db.prepare('INSERT INTO songs_fts (rowid, artist, title) VALUES (?, ?, ?)').run(
+		songId,
+		rec.artist,
+		rec.title
+	);
+	return { songId, artist: rec.artist, title: rec.title, discTag: rec.discTag };
+}

@@ -1,0 +1,149 @@
+/* Gummy Candy (brand direction 10): sugar cream, bubblegum, tangerine and mint. Soft bean
+   corners, candy-shell edges, and presses that squish, then spring back. */
+
+@font-face {
+	font-family: 'Modak';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/fonts/modak-latin.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'Baloo 2';
+	font-style: normal;
+	font-weight: 500 800;
+	font-display: swap;
+	src: url('/fonts/baloo-2-latin.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'Nunito';
+	font-style: normal;
+	font-weight: 500 800;
+	font-display: swap;
+	src: url('/fonts/nunito-latin.woff2') format('woff2');
+}
+
+:root[data-theme='gummy'] {
+	--bg-0: #fff4ea;
+	--bg-1: #fffbf6;
+	--s1: #ffffff;
+	--s2: #fff0e4;
+	--s3: #f1dccb;
+	--line: #e7c3ad;
+	--line-soft: #f1dccb;
+	--ink-hi: #2b1a22;
+	--ink-mid: #6e4a58;
+	--ink-low: #9a7584;
+	/* Bubblegum #ff5fa2 (the wordmark and the tints keep it), deepened enough to read as text on
+	   sugar and on its own bubblegum-tinted chips. */
+	--accent: #b92467;
+	--accent-deep: #d6327a;
+	--accent-ink: #ffffff;
+	--good: #0c7657;
+	--good-ink: #ffffff;
+	--warn: #8f5a00;
+	--warn-ink: #ffffff;
+	--bad: #b8232b;
+	--bad-ink: #ffffff;
+	--bad-soft: #b8232b;
+	--star: #ffb800;
+	--glow: #ffd1e4;
+	--on-tile: #ffffff;
+	--on-brand: #2b1a22;
+
+	--accent-a10: rgba(255, 95, 162, 0.12);
+	--accent-a18: rgba(255, 95, 162, 0.2);
+	--accent-a28: rgba(255, 95, 162, 0.32);
+	--accent-a40: rgba(255, 95, 162, 0.45);
+	--accent-a55: rgba(255, 95, 162, 0.6);
+	--accent-deep-a06: rgba(255, 138, 43, 0.06);
+	--accent-deep-a14: rgba(255, 95, 162, 0.14);
+	--accent-deep-a22: rgba(255, 95, 162, 0.2);
+	--accent-deep-a35: rgba(255, 95, 162, 0.35);
+	--good-a13: rgba(52, 211, 158, 0.18);
+	--warn-a14: rgba(255, 210, 63, 0.3);
+	--warn-a35: rgba(201, 154, 0, 0.45);
+	--bad-a14: rgba(242, 71, 75, 0.14);
+	--bad-a30: rgba(242, 71, 75, 0.3);
+	--bad-a40: rgba(242, 71, 75, 0.4);
+
+	--font-ui: 'Nunito', ui-rounded, 'Segoe UI', sans-serif;
+	--font-display: 'Baloo 2', ui-rounded, 'Segoe UI', sans-serif;
+	--font-mono: 'Baloo 2', ui-rounded, 'Segoe UI', sans-serif;
+	/* Nunito's own line height would push a lineup row past the 76px ceiling. */
+	--line-height: 1.3;
+	--wm-font: 'Modak', 'Baloo 2', sans-serif;
+	--wm-weight: 400;
+	--wm-tracking: 0;
+	/* Modak's counters fill in at phone size, so the candy letters would blur into the sugar and
+	   its pink glow: licorice letters with a deep bubblegum j and 3, on a bubblegum shell. */
+	--wm-body: linear-gradient(#2b1a22, #2b1a22);
+	--wm-j: linear-gradient(#d6327a, #d6327a);
+	--wm-3: linear-gradient(#d6327a, #d6327a);
+	--wm-effect: drop-shadow(0 0.05em 0 #ff5fa2) drop-shadow(0 0.12em 0.1em rgba(194, 52, 111, 0.3));
+	--wm-tile: none;
+	/* The brand keeps Modak big ("never below 40px"); 28px is the most the host header holds at 360px. */
+	--wm-size: 28px;
+	/* Each letter sits at its own jaunty angle and bounces in as the page opens. */
+	--wm-letter-display: inline-block;
+	--wm-wobble: 1deg;
+	--wm-letter-motion: wordmark-bounce 0.8s cubic-bezier(0.34, 1.9, 0.5, 1) both;
+
+	--r-xs: 8px;
+	--r-sm: 12px;
+	--r-md: 16px;
+	--r-lg: 22px;
+	--r-xl: 28px;
+	--r-logo: 12px;
+	/* Squish, then spring: presses flatten and widen, then overshoot back. */
+	--ease: cubic-bezier(0.34, 1.9, 0.5, 1);
+	--t-fast: 120ms;
+	--press-transform: scale(1.07, 0.88);
+	--press-filter: none;
+	--page-bg:
+		radial-gradient(circle at 12% 8%, rgba(255, 95, 162, 0.16), transparent 32%) no-repeat,
+		radial-gradient(circle at 92% 22%, rgba(52, 211, 158, 0.16), transparent 30%) no-repeat,
+		radial-gradient(rgba(214, 50, 122, 0.1) 1px, transparent 1.4px) 0 0 / 22px 22px,
+		#fff4ea;
+	--surface-glass: rgba(255, 251, 246, 0.94);
+	--surface-now: linear-gradient(160deg, #ffffff 0%, #fffbf6 60%, #ffdce8 140%);
+	/* Licorice letters (--on-brand) read on bubblegum where white can't; the deep rim is lifted
+	   from #d6327a so they read there too. */
+	--brand-gradient: radial-gradient(130% 100% at 32% 18%, #ff9cc5 0%, #ff5fa2 42%, #dd5490 100%);
+	--warn-gradient: radial-gradient(130% 100% at 32% 18%, #ffe27e 0%, #ffd23f 42%, #c99a00 100%);
+	--card-edge: 2px solid #f1dccb;
+	--card-edge-strong: 3px solid #34d39e;
+	--shadow-card: 0 4px 0 #f1dccb, 0 14px 22px -16px rgba(122, 40, 80, 0.35);
+	--shadow-stage: 0 5px 0 #d6327a, 0 18px 30px -18px rgba(122, 40, 80, 0.45);
+	--ring-selected: 0 0 0 4px rgba(52, 211, 158, 0.35);
+
+	/* The TV is the same sugar table: licorice letters, candy-shell cards. */
+	--tv-radius: 2.4vh;
+	--tv-glass: rgba(255, 255, 255, 0.94);
+	--tv-glass-line: #ff5fa2;
+	--tv-glass-quiet: rgba(255, 255, 255, 0.84);
+	--tv-scrim: rgba(255, 244, 234, 0.8);
+	--tv-qr-plate: #ffffff;
+	--tv-stage-bg: #fff4ea;
+	--tv-page-bg:
+		radial-gradient(circle at 0% 0%, rgba(255, 95, 162, 0.22), transparent 38%),
+		radial-gradient(circle at 100% 100%, rgba(52, 211, 158, 0.2), transparent 40%),
+		radial-gradient(rgba(214, 50, 122, 0.09) 0.12vw, transparent 0.16vw) 0 0 / 1.3vw 1.3vw,
+		#fff4ea;
+	--tv-beam: linear-gradient(rgba(255, 95, 162, 0.7), transparent 78%);
+}
+
+/* No rows to fit on the TV, and a line shorter than Nunito's own would push the idle
+   ticker's letters past the bottom safe margin. */
+:root[data-theme='gummy'][data-screen='tv'] {
+	--line-height: normal;
+	/* The TV's letters are big enough to wear the candy colors in a candy shell. */
+	--wm-body: linear-gradient(#ff5fa2, #ff5fa2);
+	--wm-j: linear-gradient(#ff8a2b, #ff8a2b);
+	--wm-3: linear-gradient(#34d39e, #34d39e);
+	--wm-effect: drop-shadow(0 0.05em 0 #d6327a) drop-shadow(0 0.12em 0.1em rgba(194, 52, 111, 0.3));
+	/* /display's own body would otherwise be the phone's sugar dots. */
+	--page-bg: var(--tv-page-bg);
+}

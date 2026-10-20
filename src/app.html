@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en" data-theme="%karaoke.theme%" data-screen="%karaoke.screen%" data-theme-from="%karaoke.theme-from%">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="theme-color" content="%karaoke.theme-color%" />
+		<script>
+			// A phone keeps its own theme in its storage. Setting it here, before the first paint,
+			// means the page never flashes the default. The TV and the host page wear the host's
+			// TV theme, which the server already wrote on <html>.
+			(function () {
+				var colors = %karaoke.theme-colors%;
+				var root = document.documentElement;
+				try {
+					var id = localStorage.getItem('karaoke:theme');
+					if (root.dataset.themeFrom === 'host' || typeof colors[id] !== 'string') return;
+					root.dataset.theme = id;
+					document.querySelector('meta[name="theme-color"]').content = colors[id];
+				} catch (error) {
+					// Storage can be off (a private window); the default theme stays.
+				}
+			})();
+		</script>
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>

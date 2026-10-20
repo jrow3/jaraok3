@@ -1,0 +1,47 @@
+node_modules
+
+# Output
+.output
+.vercel
+.netlify
+.wrangler
+/.svelte-kit
+/build
+
+# Local generated data (SQLite index, symlink farm)
+/data
+
+# TV-display control flag (runtime state); keep the dir, ignore its contents
+/control/*
+!/control/.gitkeep
+
+# YouTube cookies.txt (a signed-in session); keep the dir, never commit its contents
+/cookies/*
+!/cookies/.gitkeep
+
+# Dev-only yt-dlp binary (installed in the container for prod)
+/bin
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+!.env.example
+!.env.test
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Python caches (deploy/audio agent tests)
+__pycache__
+.pytest_cache
+
+# This machine's audio interface (deploy/audio/audio.env.example shows the shape)
+/deploy/audio/audio.env
+
+# On-demand downloads when KARAOKE_DOWNLOADS isn't set (docker-compose.yml)
+/downloads

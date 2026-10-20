@@ -1,0 +1,13 @@
+[Unit]
+Description=Karaoke kiosk flag watcher
+After=docker.service
+
+[Service]
+# Where you cloned the repo: the watcher reads the TV flag from its control/ folder, the
+# host side of the compose `./control:/control` mount.
+Environment=KARAOKE_HOME=/opt/karaoke
+ExecStart=/bin/bash ${KARAOKE_HOME}/deploy/kiosk/karaoke-kiosk-watch.sh ${KARAOKE_HOME}/control/display
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

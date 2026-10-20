@@ -1,0 +1,164 @@
+/* Y2K Chrome (brand direction 04): brushed silver and frosted plates on the phone, a smoked
+   glass screen on the TV, gel buttons, ice blue and lime. */
+
+@font-face {
+	font-family: 'Unbounded';
+	font-style: normal;
+	font-weight: 500 900;
+	font-display: swap;
+	src: url('/fonts/unbounded-latin.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'Chakra Petch';
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+	src: url('/fonts/chakra-petch-500-latin.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'Chakra Petch';
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+	src: url('/fonts/chakra-petch-600-latin.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'Chakra Petch';
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url('/fonts/chakra-petch-700-latin.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'Share Tech Mono';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/fonts/share-tech-mono-latin.woff2') format('woff2');
+}
+
+:root[data-theme='chrome'] {
+	--bg-0: #d5dbe2;
+	--bg-1: #f4f6f8;
+	--s1: rgba(255, 255, 255, 0.72);
+	--s2: #f6f9fb;
+	--s3: #c9cfd7;
+	--line: #aeb6c0;
+	--line-soft: #ffffff;
+	--ink-hi: #1c2129;
+	--ink-mid: #444c57;
+	--ink-low: #5f6874;
+	/* The brand aqua #0a6fd6 (the wordmark j and the gel buttons keep it), deepened just enough
+	   to pass as text on silver and on its own tinted chips. */
+	--accent: #064e97;
+	--accent-deep: #0a6fd6;
+	--accent-ink: #ffffff;
+	--good: #3a5c00;
+	--good-ink: #f0ffb8;
+	--warn: #7a5100;
+	--warn-ink: #fff3c4;
+	--bad: #a82014;
+	--bad-ink: #ffffff;
+	--bad-soft: #a82014;
+	--star: #e0a800;
+	--glow: #bfe9ff;
+	--on-tile: #ffffff;
+
+	--accent-a10: rgba(6, 78, 151, 0.1);
+	--accent-a18: rgba(6, 78, 151, 0.18);
+	--accent-a28: rgba(6, 78, 151, 0.28);
+	--accent-a40: rgba(6, 78, 151, 0.4);
+	--accent-a55: rgba(6, 78, 151, 0.55);
+	--accent-deep-a06: rgba(108, 211, 255, 0.1);
+	--accent-deep-a14: rgba(108, 211, 255, 0.2);
+	--accent-deep-a22: rgba(108, 211, 255, 0.32);
+	--accent-deep-a35: rgba(108, 211, 255, 0.45);
+	--good-a13: rgba(184, 244, 0, 0.3);
+	--warn-a14: rgba(255, 201, 40, 0.3);
+	--warn-a35: rgba(201, 148, 0, 0.5);
+	--bad-a14: rgba(255, 77, 61, 0.14);
+	--bad-a30: rgba(255, 77, 61, 0.3);
+	--bad-a40: rgba(255, 77, 61, 0.4);
+
+	--font-ui: 'Chakra Petch', 'Segoe UI', sans-serif;
+	--font-display: 'Unbounded', 'Segoe UI', sans-serif;
+	--font-mono: 'Share Tech Mono', ui-monospace, monospace;
+	--wm-font: 'Unbounded', 'Segoe UI', sans-serif;
+	--wm-tracking: -0.035em;
+	/* Chrome on a light plate: dark metal letters, gel-glass j and 3. */
+	--wm-body: linear-gradient(180deg, #6b7482 0%, #3a424d 40%, #0e1116 52%, #2b3038 70%, #5a6370 100%);
+	--wm-j: linear-gradient(180deg, #9be3ff 0%, #34b2f0 40%, #0a6fd6 53%, #0a4f9a 100%);
+	--wm-3: linear-gradient(180deg, #ddff6a 0%, #8bc400 40%, #5e8a00 53%, #3f6300 100%);
+	--wm-effect: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.9)) drop-shadow(0 2px 3px rgba(10, 20, 35, 0.25));
+	--wm-tile: none;
+
+	--r-xs: 4px;
+	--r-sm: 8px;
+	--r-md: 12px;
+	--r-lg: 16px;
+	--r-xl: 22px;
+	/* Hardware, not confetti: gel buttons squish and spring back. */
+	--ease: cubic-bezier(0.3, 1.6, 0.5, 1);
+	--press-transform: scale(0.96);
+	--page-bg:
+		radial-gradient(1200px 500px at 85% -10%, rgba(108, 211, 255, 0.35), transparent 60%) no-repeat,
+		repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0 1px, rgba(0, 0, 0, 0.025) 1px 2px, transparent 2px 3px),
+		linear-gradient(180deg, #eef1f4, #d5dbe2 600px) no-repeat,
+		#d5dbe2;
+	--surface-glass: rgba(244, 246, 248, 0.9);
+	/* --s2 is lighter than a card here, so a CDG tag on it had no pill. */
+	--tag-neutral: var(--s3);
+	--surface-now: linear-gradient(180deg, rgba(234, 249, 255, 0.95), rgba(200, 238, 255, 0.8));
+	/* Gel buttons carry white letters, so the ice-blue sheen is deepened to #007dbb, just past
+	   the brand aqua #0a6fd6, rather than the letters turned dark against the navy foot. */
+	--brand-gradient: linear-gradient(180deg, #007dbb 0%, #0a6fd6 55%, #07578f 100%);
+	--warn-gradient: linear-gradient(180deg, #fff3c4 0%, #ffc928 55%, #c99400 100%);
+	--card-edge: 1px solid #ffffff;
+	--card-edge-strong: 1.5px solid #3fb4ec;
+	--shadow-card: 0 1px 0 rgba(0, 0, 0, 0.07), 0 10px 20px -14px rgba(10, 20, 35, 0.45);
+	--shadow-stage: 0 24px 50px -22px rgba(10, 20, 35, 0.6);
+	--ring-selected: 0 0 0 3px rgba(108, 211, 255, 0.45);
+
+	--tv-qr-plate: #ffffff;
+	/* Gel buttons: a glossy highlight across the top, as on a 2002 MP3 player. */
+	--gloss: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0));
+}
+
+/* The TV is a smoked glass screen: silver letters on near-black, ice and lime highlights. */
+:root[data-theme='chrome'][data-screen='tv'] {
+	--bg-0: #0e1116;
+	--ink-hi: #eaf2f8;
+	--ink-mid: #a9bacb;
+	--accent: #6cd3ff;
+	--accent-ink: #032a44;
+	--warn: #ffc928;
+	--bad: #ff7b6e;
+	--line-soft: rgba(255, 255, 255, 0.12);
+	--s3: rgba(255, 255, 255, 0.16);
+	--accent-a10: rgba(108, 211, 255, 0.1);
+	--accent-a18: rgba(108, 211, 255, 0.18);
+	--accent-a28: rgba(108, 211, 255, 0.28);
+	--accent-a40: rgba(108, 211, 255, 0.4);
+	--accent-a55: rgba(108, 211, 255, 0.55);
+	--wm-body: linear-gradient(180deg, #ffffff 0%, #eef1f5 20%, #b3bbc6 42%, #39404b 50%, #7d8795 58%, #d9dfe6 80%, #ffffff 100%);
+	--wm-j: linear-gradient(180deg, #f2fbff 0%, #9be3ff 30%, #34b2f0 48%, #0a6fd6 53%, #4cc4ff 75%, #d8f5ff 100%);
+	--wm-3: linear-gradient(180deg, #fbffe0 0%, #ddff6a 30%, #b8f400 48%, #5e8a00 53%, #a6dc00 75%, #eeffb0 100%);
+	--wm-effect: drop-shadow(0 0.025em 0 #05070a) drop-shadow(0 0.07em 0.09em rgba(0, 0, 0, 0.5));
+	--tv-glass: rgba(20, 26, 34, 0.74);
+	--tv-glass-quiet: rgba(20, 26, 34, 0.5);
+	--tv-dim: rgba(5, 7, 10, 0.62);
+	--tv-scrim: rgba(20, 26, 34, 0.6);
+	--tv-stage-bg: #0e1116;
+	--tv-page-bg:
+		radial-gradient(120% 70% at 20% -10%, rgba(108, 211, 255, 0.22), transparent 55%),
+		radial-gradient(80% 60% at 110% 120%, rgba(184, 244, 0, 0.1), transparent 60%),
+		linear-gradient(160deg, #1b222c 0%, #0e1116 60%, #141a22 100%),
+		#0e1116;
+	/* /display's own body would otherwise be the phone's brushed silver. */
+	--page-bg: var(--tv-page-bg);
+	--tv-beam: linear-gradient(rgba(184, 244, 0, 0.8), transparent 78%);
+}

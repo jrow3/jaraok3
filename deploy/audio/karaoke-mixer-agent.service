@@ -1,0 +1,17 @@
+# A systemd *user* unit: PipeWire runs as the user, so the agent must too.
+# Assumes the repo is at ~/karaoke; if not, change the three %h/karaoke paths below.
+# Install steps: deploy/audio/README.md.
+[Unit]
+Description=Karaoke mixer agent (Sound tab -> PipeWire Mic FX)
+After=pipewire.service wireplumber.service
+Wants=pipewire.service
+
+[Service]
+Environment=CONTROL_DIR=%h/karaoke/control
+EnvironmentFile=%h/karaoke/deploy/audio/audio.env
+ExecStart=/usr/bin/python3 %h/karaoke/deploy/audio/karaoke_mixer_agent.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target

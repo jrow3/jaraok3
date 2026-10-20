@@ -1,0 +1,115 @@
+# Mic FX: the whole voice chain, with no hardware mixer. A TEMPLATE: render it for your
+# audio interface with render_conf.py, which fills in its double-braced values from audio.env
+# (see deploy/audio/README.md), into ~/.config/pipewire/pipewire.conf.d/mic-fx.conf.
+#
+# Every stage the host's Sound tab can touch is always in the graph; "off" is a
+# neutral value (EQ gain 0, echo gain 0), so moving a control never rebuilds the
+# graph or drops audio. The control values below are only the boot-time starting
+# point: karaoke-mixer-agent re-applies the Sound tab's settings on top.
+#
+# Signal: line in (1 or 2 mic inputs) -> mix (per-input trim, sum to mono) -> lowcut ->
+# bass -> mid -> presence -> air -> gate -> comp -> voice (dry + echo) -> verb -> out.
+# The port names here are what src/lib/features/mixer/pipewire.ts sends; its test
+# reads this file, so rename a port in both places or the test fails.
+context.modules = [
+  { name = libpipewire-module-filter-chain
+    args = {
+      node.description = "Mic FX"
+      media.name       = "Mic FX"
+      filter.graph = {
+        nodes = [
+          { type = builtin label = mixer name = mix
+            control = { "Gain 1" = 1.0 "Gain 2" = 1.0 }
+          }
+          { type = builtin label = bq_highpass name = lowcut
+            control = { "Freq" = 20 "Q" = 0.707 }
+          }
+          { type = builtin label = bq_lowshelf name = bass
+            control = { "Freq" = 120 "Q" = 0.707 "Gain" = 0 }
+          }
+          { type = builtin label = bq_peaking name = mid
+            control = { "Freq" = 1000 "Q" = 1.0 "Gain" = 0 }
+          }
+          { type = builtin label = bq_peaking name = presence
+            control = { "Freq" = 4000 "Q" = 1.0 "Gain" = 0 }
+          }
+          { type = builtin label = bq_highshelf name = air
+            control = { "Freq" = 10000 "Q" = 0.707 "Gain" = 0 }
+          }
+          { type = ladspa label = gate name = gate
+            plugin = {{LADSPA_DIR}}/gate_1410.so
+            control = {
+              "Threshold (dB)" = -50
+              "Attack (ms)" = 3
+              "Hold (ms)" = 250
+              "Decay (ms)" = 400
+              "Range (dB)" = -40
+            }
+          }
+          { type = ladspa label = sc4m name = comp
+            plugin = {{LADSPA_DIR}}/sc4m_1916.so
+            control = {
+              "RMS/peak" = 0
+              "Attack time (ms)" = 10
+              "Release time (ms)" = 150
+              "Threshold level (dB)" = -24
+              "Ratio (1:n)" = 4
+              "Knee radius (dB)" = 3
+              "Makeup gain (dB)" = 9
+            }
+          }
+          # A single repeat (slapback), not a feedback echo: filter-chain graphs can't loop.
+          { type = builtin label = delay name = echo
+            config = { "max-delay" = 1.0 }
+            control = { "Delay (s)" = 0.25 }
+          }
+          # In 1 = the dry voice, In 2 = its echo. Gain 1 is the Voice fader.
+          { type = builtin label = mixer name = voice
+            control = { "Gain 1" = 1.0 "Gain 2" = 0.0 }
+          }
+          { type = ladspa label = gverb name = verb
+            plugin = {{LADSPA_DIR}}/gverb_1216.so
+            control = {
+              "Roomsize (m)" = 30
+              "Reverb time (s)" = 1.5
+              "Damping" = 0.5
+              "Input bandwidth" = 0.75
+              "Dry signal level (dB)" = 0
+              "Early reflection level (dB)" = -11
+              "Tail level (dB)" = -15
+            }
+          }
+        ]
+        links = [
+          { output = "mix:Out"         input = "lowcut:In" }
+          { output = "lowcut:Out"      input = "bass:In" }
+          { output = "bass:Out"        input = "mid:In" }
+          { output = "mid:Out"         input = "presence:In" }
+          { output = "presence:Out"    input = "air:In" }
+          { output = "air:Out"         input = "gate:Input" }
+          { output = "gate:Output"     input = "comp:Input" }
+          { output = "comp:Output"     input = "voice:In 1" }
+          { output = "comp:Output"     input = "echo:In" }
+          { output = "echo:Out"        input = "voice:In 2" }
+          { output = "voice:Out"       input = "verb:Input" }
+        ]
+        inputs  = [ {{INPUTS}} ]
+        outputs = [ "verb:Left output" "verb:Right output" ]
+      }
+      capture.props = {
+        node.name      = "mic_fx_input"
+        target.object  = "{{AUDIO_SOURCE}}"
+        audio.channels = {{CAPTURE_CHANNELS}}
+        audio.position = [ {{CAPTURE_POSITION}} ]
+        node.latency   = {{AUDIO_LATENCY}}
+      }
+      playback.props = {
+        node.name      = "mic_fx_output"
+        target.object  = "{{AUDIO_SINK}}"
+        audio.channels = 2
+        audio.position = [ FL FR ]
+        node.latency   = {{AUDIO_LATENCY}}
+      }
+    }
+  }
+]

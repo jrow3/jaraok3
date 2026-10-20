@@ -1,0 +1,234 @@
+/* jaraok3 design system — single source of truth for all three surfaces.
+   Tokens per design/redesign-2026/index.html (the approved overhaul). The values in :root
+   are the Classic theme; each theme file restates the tokens it changes. */
+
+@import './lib/themes/tokyo.css';
+@import './lib/themes/swiss.css';
+@import './lib/themes/chrome.css';
+@import './lib/themes/onair.css';
+@import './lib/themes/gummy.css';
+@import './lib/themes/disco.css';
+
+@font-face {
+	font-family: 'Bricolage Grotesque';
+	font-style: normal;
+	font-weight: 200 800;
+	font-display: swap;
+	src: url('/fonts/bricolage-grotesque-latin.woff2') format('woff2');
+}
+
+:root {
+	--bg-0: #0b0910;
+	--bg-1: #131019;
+	--s1: rgba(255, 255, 255, 0.04);
+	--s2: rgba(255, 255, 255, 0.07);
+	--s3: rgba(255, 255, 255, 0.11);
+	--line: rgba(255, 255, 255, 0.1);
+	--line-soft: rgba(255, 255, 255, 0.06);
+	--ink-hi: #f2effa;
+	--ink-mid: #a69fbd;
+	--ink-low: #6a6382;
+	--accent: #c7b3ff;
+	--accent-deep: #7a5af8;
+	--accent-ink: #171029;
+	--good: #3bd98b;
+	--good-ink: #0a2417;
+	--warn: #efb83d;
+	--warn-ink: #2a1f06;
+	--bad: #ff5c6e;
+	--bad-ink: #2a0a0e;
+	--star: #ffcd4d;
+	--glow: #251a4d;
+	--font-ui: 'Bricolage Grotesque', 'Segoe UI', sans-serif;
+	--font-display: var(--font-ui);
+	--font-display-weight: 800;
+	--font-display-stretch: 100%;
+	--font-mono: var(--font-ui);
+	--line-height: normal;
+	/* The wordmark's letters are painted, so its colors are images: a flat color is a
+	   one-color gradient. */
+	--wm-font: var(--font-ui);
+	--wm-weight: 800;
+	--wm-stretch: 100%;
+	--wm-tracking: -0.02em;
+	--wm-body: linear-gradient(var(--ink-hi), var(--ink-hi));
+	--wm-j: linear-gradient(var(--accent), var(--accent));
+	--wm-3: linear-gradient(var(--accent), var(--accent));
+	--wm-effect: none;
+	--wm-tile: grid;
+	--wm-size: var(--fs-lg);
+	--label-tracking: 0.2em;
+	/* Inline letters keep the font's kerning; a theme that tilts or bounces them needs blocks. */
+	--wm-letter-display: inline;
+	--wm-wobble: 0deg;
+	--wm-letter-motion: none;
+	--r-xs: 4px;
+	--r-sm: 6px;
+	--r-md: 10px;
+	--r-lg: 14px;
+	--r-xl: 20px;
+	--r-pill: 999px;
+	--r-logo: 8px;
+	--ease: cubic-bezier(0.25, 1, 0.5, 1);
+	--t-fast: 120ms;
+	--t-base: 200ms;
+	--t-slow: 320ms;
+	--shadow-stage: 0 24px 70px rgba(0, 0, 0, 0.55);
+	--scrim: rgba(4, 3, 8, 0.6);
+	--page-bg: radial-gradient(900px 500px at 82% -10%, var(--glow), transparent 60%) no-repeat, var(--bg-0);
+	--card-edge: 1px solid var(--line-soft);
+	--card-edge-strong: 1px solid var(--accent-a28);
+	--shadow-card: none;
+
+	--accent-a10: rgba(199, 179, 255, 0.1);
+	--accent-a18: rgba(199, 179, 255, 0.18);
+	--accent-a28: rgba(199, 179, 255, 0.28);
+	--accent-a40: rgba(199, 179, 255, 0.4);
+	--accent-a55: rgba(199, 179, 255, 0.55);
+	--accent-deep-a06: rgba(122, 90, 248, 0.06);
+	--accent-deep-a14: rgba(122, 90, 248, 0.14);
+	--accent-deep-a22: rgba(122, 90, 248, 0.22);
+	--accent-deep-a35: rgba(122, 90, 248, 0.35);
+	--good-a13: rgba(59, 217, 139, 0.13);
+	--warn-a14: rgba(239, 184, 61, 0.14);
+	--warn-a35: rgba(239, 184, 61, 0.35);
+	--bad-a14: rgba(255, 92, 110, 0.14);
+	--bad-a30: rgba(255, 92, 110, 0.3);
+	--bad-a40: rgba(255, 92, 110, 0.4);
+	--bad-soft: #ff8c7e;
+	--on-tile: #fff;
+	--on-brand: var(--on-tile);
+	--surface-glass: rgba(19, 16, 25, 0.92);
+	/* The plain tag (CDG) beside a tinted one; it must differ from the card it sits on. */
+	--tag-neutral: var(--s2);
+	--switch-on: var(--good);
+	--chip-surface: var(--accent-a10);
+	--chip-edge: var(--accent-a28);
+	--chip-ink: var(--accent);
+	--chip-icon: currentColor;
+	/* The highlight starts at the brand violet #7a5af8 so white reads on every part of it. */
+	--brand-gradient: radial-gradient(120% 120% at 30% 20%, #7a5af8, #5b3df0 70%);
+	--warn-gradient: radial-gradient(120% 120% at 30% 20%, #f4ca6e, #c98a12 70%);
+	--bad-gradient: radial-gradient(120% 120% at 30% 20%, var(--bad-soft), #d02a44 70%);
+	--surface-now: linear-gradient(120deg, var(--accent-deep-a22), var(--accent-deep-a06));
+	--shadow-tile-text: 0 1px 6px rgba(0, 0, 0, 0.35);
+	--ring-focus: 0 0 0 3px var(--accent-deep-a22);
+	--ring-selected: 0 0 0 3px var(--accent-deep-a14);
+	--press-transform: scale(0.97);
+	--press-filter: brightness(0.92);
+
+	--fs-xs: 11px;
+	--fs-sm: 13px;
+	--fs-md: 15px;
+	--fs-lg: 18px;
+	--fs-xl: 24px;
+	--fs-2xl: 32px;
+	--fs-input: 16px;
+
+	--sp-1: 4px;
+	--sp-2: 8px;
+	--sp-3: 12px;
+	--sp-4: 16px;
+	--sp-5: 20px;
+	--sp-6: 24px;
+	--sp-7: 28px;
+	--sp-8: 32px;
+	--tap: 44px;
+	--tap-sm: 36px;
+
+	/* TV. Sizes follow the screen height, so a 4K TV gets the same layout as the 1080p
+	   kiosk; max() holds the audit's 28px floor in a small browser window. */
+	--tv-safe-x: 5vw;
+	--tv-safe-y: 5vh;
+	--tv-gap: 2.4vh;
+	--tv-gap-lg: 4.4vh;
+	--tv-radius: 2vh;
+	--tv-radius-sm: 1vh;
+	--tv-fade: 900ms;
+	--tv-fs-sm: max(28px, 2.6vh);
+	--tv-fs-md: max(32px, 3.4vh);
+	--tv-fs-lg: 5.2vh;
+	--tv-fs-xl: 8vh;
+	--tv-fs-2xl: 12vh;
+	--tv-fs-hero: 9vh;
+	--tv-qr-sm: 14vh;
+	--tv-qr-md: 24vh;
+	--tv-qr-lg: 40vh;
+	--tv-glass: rgba(11, 9, 16, 0.72);
+	--tv-glass-line: var(--accent-a28);
+	--tv-glass-quiet: rgba(11, 9, 16, 0.45);
+	--tv-dim: rgba(4, 3, 8, 0.6);
+	/* Behind the words laid over a video: ink-hi reads on it over a white frame and a black one. */
+	--tv-scrim: rgba(11, 9, 16, 0.6);
+	/* The scrim drawn around each letter, for words over a video that shouldn't sit in a box. */
+	--tv-halo: 0 0 0.08em var(--tv-scrim), 0 0 0.2em var(--tv-scrim), 0 0 0.5em var(--tv-scrim);
+	--tv-qr-plate: var(--ink-hi);
+	--tv-stage-bg: #000;
+	--tv-page-bg: radial-gradient(1000px 620px at 50% 18%, var(--glow), transparent 72%), var(--bg-0);
+	--tv-beam: linear-gradient(rgba(199, 179, 255, 0.9), transparent 78%);
+	/* What full-screen lyrics leave beside them, the lyrics being 300:216, inside the band's own
+	   padding: the side safe margin would take half a band. */
+	--tv-band-pad: 1.25vw;
+	--tv-band: calc((100vw - 100vh * 300 / 216) / 2 - 2 * var(--tv-band-pad));
+
+	/* Flourishes: the props a theme adds. Classic shows none, so these only keep every
+	   token defined. */
+	--sticker: var(--accent);
+	--sticker-ink: var(--accent-ink);
+	--sticker-edge: var(--bg-1);
+	--stripe-1: var(--ink-hi);
+	--stripe-2: var(--accent);
+	--stripe-3: var(--accent-deep);
+	--stripe-4: var(--bad);
+	--gloss: none;
+}
+
+html {
+	height: 100%;
+}
+
+body {
+	margin: 0;
+	min-height: 100%;
+	background: var(--page-bg);
+	color: var(--ink-hi);
+	font-family: var(--font-ui);
+	line-height: var(--line-height);
+	-webkit-font-smoothing: antialiased;
+}
+
+::selection {
+	background: var(--accent-deep-a35);
+}
+
+:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+button {
+	font-family: inherit;
+	cursor: pointer;
+}
+
+input {
+	font-family: inherit;
+}
+
+button:not(:disabled):active {
+	transform: var(--press-transform);
+	filter: var(--press-filter);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation: none !important;
+		transition: none !important;
+	}
+
+	button:not(:disabled):active {
+		transform: none;
+	}
+}

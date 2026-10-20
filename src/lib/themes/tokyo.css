@@ -1,0 +1,172 @@
+/* Tokyo Box (brand direction 01): a cream karaoke-box menu on the phone, cherry vinyl on the TV. */
+
+@font-face {
+	font-family: 'Dela Gothic One';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/fonts/dela-gothic-one-latin.woff2') format('woff2');
+}
+
+/* Only カラオケ, for the sticker: the whole Japanese font is megabytes. */
+@font-face {
+	font-family: 'Dela Gothic One';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/fonts/dela-gothic-one-karaoke.woff2') format('woff2');
+	unicode-range: U+30AA-30AB, U+30B1, U+30E9;
+}
+
+@font-face {
+	font-family: 'Zen Kaku Gothic New';
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+	src: url('/fonts/zen-kaku-gothic-new-500-latin.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'Zen Kaku Gothic New';
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url('/fonts/zen-kaku-gothic-new-700-latin.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'Zen Kaku Gothic New';
+	font-style: normal;
+	font-weight: 900;
+	font-display: swap;
+	src: url('/fonts/zen-kaku-gothic-new-900-latin.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'DotGothic16';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/fonts/dotgothic16-latin.woff2') format('woff2');
+}
+
+:root[data-theme='tokyo'] {
+	--bg-0: #fff3dc;
+	--bg-1: #fffbf2;
+	--s1: #fffbf2;
+	--s2: #ffffff;
+	--s3: #e8d7b6;
+	--line: #1e1a16;
+	--line-soft: #e8d7b6;
+	--ink-hi: #1e1a16;
+	--ink-mid: #4a423a;
+	--ink-low: #7a6e60;
+	/* Cherry, green and mustard deepened from the brand's #d7263d, #167a4d and #8a5e00 so text
+	   stays AA on their own tinted chips and, for cherry, on the singer's cherry-tinted row; the
+	   wordmark keeps the brand cherry. */
+	--accent: #ab1e31;
+	--accent-deep: #9e1628;
+	--accent-ink: #fffbf2;
+	--good: #157248;
+	--good-ink: #fffbf2;
+	--warn: #855b00;
+	--warn-ink: #fffbf2;
+	--bad: #b81d32;
+	--bad-ink: #fffbf2;
+	--bad-soft: #a61b2c;
+	--star: #e89b00;
+	--glow: #ffe3a8;
+	--on-tile: #fffbf2;
+
+	--accent-a10: rgba(171, 30, 49, 0.1);
+	--accent-a18: rgba(171, 30, 49, 0.18);
+	--accent-a28: rgba(171, 30, 49, 0.28);
+	--accent-a40: rgba(171, 30, 49, 0.4);
+	--accent-a55: rgba(171, 30, 49, 0.55);
+	--accent-deep-a06: rgba(158, 22, 40, 0.06);
+	--accent-deep-a14: rgba(158, 22, 40, 0.14);
+	--accent-deep-a22: rgba(158, 22, 40, 0.22);
+	--accent-deep-a35: rgba(158, 22, 40, 0.35);
+	--good-a13: rgba(21, 114, 72, 0.13);
+	--warn-a14: rgba(133, 91, 0, 0.14);
+	--warn-a35: rgba(133, 91, 0, 0.35);
+	--bad-a14: rgba(184, 29, 50, 0.14);
+	--bad-a30: rgba(184, 29, 50, 0.3);
+	--bad-a40: rgba(184, 29, 50, 0.4);
+
+	--font-ui: 'Zen Kaku Gothic New', 'Hiragino Sans', 'Segoe UI', sans-serif;
+	--font-display: 'Dela Gothic One', 'Zen Kaku Gothic New', sans-serif;
+	--font-display-weight: 400;
+	--font-mono: 'DotGothic16', ui-monospace, monospace;
+	/* Zen Kaku's own line height would push a lineup row past the 76px ceiling. */
+	--line-height: 1.3;
+	--wm-font: 'Dela Gothic One', 'Zen Kaku Gothic New', sans-serif;
+	--wm-weight: 400;
+	--wm-tracking: -0.035em;
+	--wm-body: linear-gradient(#1e1a16, #1e1a16);
+	--wm-j: linear-gradient(#d7263d, #d7263d);
+	--wm-3: linear-gradient(#d7263d, #d7263d);
+	--wm-effect: drop-shadow(0 0.05em 0 #ffc425);
+	--wm-tile: none;
+
+	--r-xs: 3px;
+	--r-sm: 4px;
+	--r-md: 6px;
+	--r-lg: 8px;
+	--r-xl: 10px;
+	/* A tambourine: still, then a quick jangle; buttons press down like booth call buttons. */
+	--ease: cubic-bezier(0.3, 1.8, 0.5, 1);
+	--press-transform: translateY(3px);
+	--press-filter: none;
+	--page-bg: radial-gradient(rgba(158, 22, 40, 0.09) 1px, transparent 1.4px) 0 0 / 14px 14px, #fff3dc;
+	--surface-glass: rgba(255, 251, 242, 0.94);
+	/* --s2 is lighter than a card here, so a CDG tag on it had no pill. */
+	--tag-neutral: var(--s3);
+	/* The highlight is the brand cherry #d7263d, the lightest red cream letters still read on. */
+	--brand-gradient: radial-gradient(120% 120% at 30% 20%, #d7263d, #9e1628 70%);
+	--warn-gradient: radial-gradient(120% 120% at 30% 20%, #ffd45c, #c98a00 70%);
+	--card-edge: 2.5px solid #1e1a16;
+	--card-edge-strong: 3px solid #1e1a16;
+	--shadow-card: 0 3px 0 rgba(30, 26, 22, 0.28);
+	--shadow-stage: 0 6px 0 rgba(30, 26, 22, 0.28);
+
+	--tv-qr-plate: #fffbf2;
+	/* The song-code stickers on the booth's binder: tamago, lacquer letters, a paper edge. */
+	--sticker: #ffc425;
+	--sticker-ink: #1e1a16;
+	--sticker-edge: #fffbf2;
+}
+
+/* The TV is the vinyl booth wall: cream letters on cherry, tamago highlights. */
+:root[data-theme='tokyo'][data-screen='tv'] {
+	--bg-0: #a61b2e;
+	--ink-hi: #fff3dc;
+	--ink-mid: #ffdcc4;
+	--accent: #ffc425;
+	--accent-ink: #1e1a16;
+	--warn: #ffc425;
+	--bad: #ffd1da;
+	/* No rows to fit here, and a line shorter than the font's own would push the idle
+	   ticker's letters past the bottom safe margin. */
+	--line-height: normal;
+	--accent-a10: rgba(255, 196, 37, 0.1);
+	--accent-a18: rgba(255, 196, 37, 0.18);
+	--accent-a28: rgba(255, 196, 37, 0.28);
+	--accent-a40: rgba(255, 196, 37, 0.4);
+	--accent-a55: rgba(255, 196, 37, 0.55);
+	--wm-body: linear-gradient(#fff3dc, #fff3dc);
+	--wm-j: linear-gradient(#ffc425, #ffc425);
+	--wm-3: linear-gradient(#ffc425, #ffc425);
+	--wm-effect: drop-shadow(0 0.055em 0 #7a1020);
+	--tv-glass: rgba(60, 0, 10, 0.66);
+	--tv-glass-quiet: rgba(60, 0, 10, 0.42);
+	--tv-dim: rgba(60, 0, 10, 0.6);
+	--tv-scrim: rgba(60, 0, 10, 0.6);
+	--tv-stage-bg: #7a1020;
+	--tv-page-bg:
+		linear-gradient(90deg, rgba(60, 0, 10, 0.34), rgba(255, 255, 255, 0.04) 18%, rgba(255, 235, 235, 0.1) 46%, rgba(255, 255, 255, 0.04) 78%, rgba(60, 0, 10, 0.38)) 0 0 / 5vw 100%,
+		#a61b2e;
+	/* /display's own body would otherwise be the phone's cream. */
+	--page-bg: var(--tv-page-bg);
+	--tv-beam: linear-gradient(rgba(255, 196, 37, 0.9), transparent 78%);
+}

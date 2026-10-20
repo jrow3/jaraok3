@@ -1,0 +1,139 @@
+/* On Air (brand direction 06): a studio at night. Brushed graphite, cream engraving, the red
+   ON AIR lamp and amber dials; everything moves like hardware and nothing bounces. */
+
+@font-face {
+	font-family: 'Michroma';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/fonts/michroma-latin.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'Archivo';
+	font-style: normal;
+	font-weight: 300 900;
+	font-stretch: 62% 125%;
+	font-display: swap;
+	src: url('/fonts/archivo-latin.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'IBM Plex Mono';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/fonts/ibm-plex-mono-400-latin.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'IBM Plex Mono';
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+	src: url('/fonts/ibm-plex-mono-600-latin.woff2') format('woff2');
+}
+
+:root[data-theme='onair'] {
+	--bg-0: #15120f;
+	--bg-1: #24201c;
+	--s1: rgba(242, 232, 210, 0.05);
+	--s2: rgba(242, 232, 210, 0.09);
+	--s3: rgba(242, 232, 210, 0.16);
+	--line: #4a433b;
+	--line-soft: #2f2a25;
+	--ink-hi: #f2e8d2;
+	--ink-mid: #b9ae98;
+	--ink-low: #8a8173;
+	--accent: #ffae3b;
+	--accent-deep: #b8731f;
+	--accent-ink: #1a1714;
+	--good: #79b35d;
+	--good-ink: #0f1a0a;
+	--warn: #e5b53a;
+	--warn-ink: #1a1400;
+	--bad: #ff5a3f;
+	--bad-ink: #1a0804;
+	--bad-soft: #ff8c7a;
+	--star: #ffae3b;
+	--glow: #3a2410;
+
+	--accent-a10: rgba(255, 174, 59, 0.1);
+	--accent-a18: rgba(255, 174, 59, 0.18);
+	--accent-a28: rgba(255, 174, 59, 0.28);
+	--accent-a40: rgba(255, 174, 59, 0.4);
+	--accent-a55: rgba(255, 174, 59, 0.55);
+	--accent-deep-a06: rgba(184, 115, 31, 0.06);
+	--accent-deep-a14: rgba(184, 115, 31, 0.14);
+	--accent-deep-a22: rgba(184, 115, 31, 0.22);
+	--accent-deep-a35: rgba(184, 115, 31, 0.35);
+	--good-a13: rgba(121, 179, 93, 0.13);
+	--warn-a14: rgba(229, 181, 58, 0.14);
+	--warn-a35: rgba(229, 181, 58, 0.35);
+	--bad-a14: rgba(255, 90, 63, 0.14);
+	--bad-a30: rgba(255, 90, 63, 0.3);
+	--bad-a40: rgba(255, 90, 63, 0.4);
+
+	--font-ui: 'Archivo', 'Segoe UI', sans-serif;
+	--font-display: 'Michroma', 'Archivo', sans-serif;
+	--font-display-weight: 400;
+	--font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+	--wm-font: 'Michroma', 'Archivo', sans-serif;
+	--wm-weight: 400;
+	--wm-tracking: -0.01em;
+	--wm-body: linear-gradient(#f2e8d2, #f2e8d2);
+	--wm-j: linear-gradient(#e3321c, #e3321c);
+	--wm-3: linear-gradient(#ffae3b, #ffae3b);
+	--wm-effect: drop-shadow(0 0 0.12em rgba(255, 174, 59, 0.35));
+	--wm-tile: none;
+	/* Michroma is wide and thin: at the header's 18px it read smaller than the words beside it. */
+	--wm-size: 22px;
+	/* Plex Mono is wide too: at 0.2em "Scan to sing" wrapped under the rail's code. */
+	--label-tracking: 0.1em;
+
+	--r-xs: 2px;
+	--r-sm: 2px;
+	--r-md: 3px;
+	--r-lg: 4px;
+	--r-xl: 4px;
+	--r-pill: 4px;
+	--r-logo: 3px;
+	/* Faders glide on a rail and stop; nothing overshoots. */
+	--ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+	--press-transform: translateY(2px);
+	--page-bg:
+		radial-gradient(ellipse 70% 40% at 15% 0%, rgba(255, 174, 59, 0.1), transparent 70%) no-repeat,
+		repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 1px, rgba(0, 0, 0, 0.03) 1px 2px, transparent 2px 4px),
+		#15120f;
+	--surface-glass: rgba(36, 32, 28, 0.94);
+	--surface-now: linear-gradient(90deg, rgba(255, 174, 59, 0.14), rgba(255, 174, 59, 0.03));
+	/* The lamp keeps its white letters, as a real ON AIR sign does: its hot center is a deeper
+	   vermilion and the lamp red #e3321c a step deeper, since dark letters would fail its #a8200e rim. */
+	--brand-gradient: radial-gradient(ellipse at 50% 35%, #e42a00 0%, #e0311c 45%, #a8200e 100%);
+	--warn-gradient: linear-gradient(#ffc267, #e99426);
+	--card-edge: 1px solid #000000;
+	--card-edge-strong: 1px solid #b8731f;
+	--shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 2px 0 #000000;
+	--ring-selected: 0 0 0 3px rgba(255, 174, 59, 0.3);
+
+	--tv-radius: 0.5vh;
+	--tv-radius-sm: 0.3vh;
+	--tv-glass: rgba(21, 18, 15, 0.8);
+	--tv-glass-line: #4a433b;
+	--tv-glass-quiet: rgba(21, 18, 15, 0.55);
+	--tv-dim: rgba(10, 8, 6, 0.65);
+	--tv-scrim: rgba(21, 18, 15, 0.6);
+	--tv-qr-plate: #f4eee2;
+	--tv-stage-bg: #120f0c;
+	--tv-page-bg:
+		radial-gradient(ellipse 55% 60% at 22% 45%, rgba(255, 174, 59, 0.12), transparent 70%),
+		radial-gradient(ellipse 30% 30% at 90% 100%, rgba(227, 50, 28, 0.1), transparent 70%),
+		repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 1px, rgba(0, 0, 0, 0.03) 1px 2px, transparent 2px 4px),
+		#120f0c;
+	--tv-beam: linear-gradient(rgba(255, 174, 59, 0.9), transparent 78%);
+}
+
+:root[data-theme='onair'][data-screen='tv'] {
+	/* /display's own body would otherwise be the phone's graphite. */
+	--page-bg: var(--tv-page-bg);
+}

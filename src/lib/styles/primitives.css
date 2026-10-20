@@ -1,0 +1,258 @@
+/* ---- Shared primitives (used by guest + admin; display is its own world) ---- */
+
+.eyebrow {
+	font-family: var(--font-mono);
+	font-size: var(--fs-xs);
+	font-weight: 600;
+	letter-spacing: 0.2em;
+	text-transform: uppercase;
+	color: var(--ink-low);
+	margin: 0;
+}
+
+.input {
+	width: 100%;
+	box-sizing: border-box;
+	background: var(--s2);
+	border: 1px solid var(--line);
+	border-radius: var(--r-lg);
+	padding: var(--sp-3);
+	color: var(--ink-hi);
+	font-size: var(--fs-input);
+	outline: none;
+	transition: border-color var(--t-base) var(--ease), box-shadow var(--t-base) var(--ease);
+}
+
+.input:focus {
+	border-color: var(--accent-a55);
+	box-shadow: var(--ring-focus);
+}
+
+.input::placeholder {
+	color: var(--ink-low);
+}
+
+.btn-primary {
+	background: var(--accent);
+	color: var(--accent-ink);
+	border: none;
+	border-radius: var(--r-lg);
+	padding: var(--sp-3) var(--sp-4);
+	font-size: var(--fs-md);
+	font-weight: 700;
+	letter-spacing: -0.01em;
+	transition: filter var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
+}
+
+@media (hover: hover) {
+	.btn-primary:hover {
+		filter: brightness(1.07);
+	}
+}
+
+.btn-primary:disabled {
+	cursor: default;
+	transform: none;
+	filter: none;
+}
+
+/* A neutral surface, not a faded accent: white on a faded tint was hard to read. */
+.btn-primary:disabled:not([aria-busy='true']) {
+	background: var(--s3);
+	color: var(--ink-hi);
+}
+
+.btn-ghost {
+	background: transparent;
+	border: 1px solid var(--line);
+	color: var(--ink-hi);
+	border-radius: var(--r-md);
+	padding: var(--sp-2) var(--sp-3);
+	font-size: var(--fs-sm);
+	font-weight: 600;
+	transition: background var(--t-base) var(--ease), border-color var(--t-base) var(--ease);
+}
+
+@media (hover: hover) {
+	.btn-ghost:not(:disabled):hover {
+		background: var(--s1);
+		border-color: var(--accent-a40);
+	}
+}
+
+.icon-btn {
+	display: inline-grid;
+	place-items: center;
+	width: 32px;
+	height: 32px;
+	border-radius: var(--r-md);
+	background: var(--s1);
+	border: 1px solid var(--line-soft);
+	color: var(--ink-mid);
+	transition: color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease),
+		background var(--t-fast) var(--ease);
+}
+
+@media (hover: hover) {
+	.icon-btn:hover {
+		color: var(--accent);
+		border-color: var(--accent-a40);
+		background: var(--s2);
+	}
+}
+
+.icon-btn:disabled {
+	opacity: 0.35;
+	cursor: default;
+}
+
+.chip {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--sp-2);
+	background: var(--chip-surface);
+	border: 1px solid var(--chip-edge);
+	color: var(--chip-ink);
+	border-radius: var(--r-pill);
+	padding: var(--sp-2) var(--sp-3);
+	font-size: var(--fs-sm);
+	font-weight: 600;
+	transition: background var(--t-base) var(--ease);
+}
+
+@media (hover: hover) {
+	button.chip:hover {
+		background: var(--accent-a18);
+	}
+}
+
+.tag {
+	display: inline-flex;
+	align-items: center;
+	font-family: var(--font-mono);
+	font-size: var(--fs-xs);
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	border-radius: var(--r-xs);
+	padding: 2px var(--sp-2);
+	white-space: nowrap;
+}
+
+.tag-green {
+	color: var(--good);
+	background: var(--good-a13);
+}
+
+.tag-yellow {
+	color: var(--warn);
+	background: var(--warn-a14);
+}
+
+.tag-red {
+	color: var(--bad);
+	background: var(--bad-a14);
+}
+
+.tag-yt {
+	color: var(--bad-soft);
+	background: var(--bad-a14);
+}
+
+.tag-vid {
+	color: var(--accent);
+	background: var(--accent-a18);
+}
+
+.tag-local {
+	color: var(--ink-mid);
+	background: var(--tag-neutral);
+}
+
+.tag-dl {
+	color: var(--warn);
+	background: var(--warn-a14);
+}
+
+/* Scoped rules outrank this class, so an element that uses it sets no font-weight of its own. */
+.headline {
+	font-family: var(--font-display);
+	font-weight: var(--font-display-weight);
+	font-stretch: var(--font-display-stretch);
+}
+
+.ava {
+	flex: none;
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	display: grid;
+	place-items: center;
+	font-size: var(--fs-sm);
+	font-weight: 700;
+	color: var(--on-tile);
+	text-shadow: var(--shadow-tile-text);
+}
+
+.grip {
+	flex: none;
+	display: grid;
+	place-items: center;
+	color: var(--ink-low);
+	cursor: grab;
+}
+
+.eq {
+	display: inline-flex;
+	align-items: flex-end;
+	gap: 2.5px;
+	height: 14px;
+	flex: none;
+}
+
+.eq i {
+	width: 3px;
+	border-radius: 2px;
+	background: var(--accent);
+	animation: eq-pulse 1.05s ease-in-out infinite;
+}
+
+.eq i:nth-child(1) {
+	height: 60%;
+}
+
+.eq i:nth-child(2) {
+	height: 100%;
+	animation-delay: 0.18s;
+}
+
+.eq i:nth-child(3) {
+	height: 45%;
+	animation-delay: 0.36s;
+}
+
+@keyframes eq-pulse {
+	0%,
+	100% {
+		transform: scaleY(0.55);
+	}
+	50% {
+		transform: scaleY(1);
+	}
+}
+
+.spin {
+	display: inline-block;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	border: 2px solid var(--accent-a28);
+	border-top-color: var(--accent);
+	animation: spin-turn 0.8s linear infinite;
+	flex: none;
+}
+
+@keyframes spin-turn {
+	to {
+		transform: rotate(360deg);
+	}
+}

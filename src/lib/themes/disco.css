@@ -1,0 +1,140 @@
+/* Disco Vinyl (brand direction 02): an espresso room with sunset stripes, soft Fraunces
+   letters, square record sleeves, and things that arrive with a roller-skate overshoot. */
+
+@font-face {
+	font-family: 'Fraunces';
+	font-style: normal;
+	font-weight: 700 900;
+	font-display: swap;
+	src: url('/fonts/fraunces-latin.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'Chivo';
+	font-style: normal;
+	font-weight: 400 800;
+	font-display: swap;
+	src: url('/fonts/chivo-latin.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'Chivo Mono';
+	font-style: normal;
+	font-weight: 500 700;
+	font-display: swap;
+	src: url('/fonts/chivo-mono-latin.woff2') format('woff2');
+}
+
+:root[data-theme='disco'] {
+	--bg-0: #22130c;
+	--bg-1: #3b2116;
+	--s1: rgba(244, 228, 193, 0.05);
+	--s2: rgba(244, 228, 193, 0.09);
+	--s3: rgba(244, 228, 193, 0.16);
+	--line: #5a3522;
+	--line-soft: #3b2116;
+	--ink-hi: #f4e4c1;
+	/* Muted cream-browns, so secondary text ranks below the headings and orange stays for accents. */
+	--ink-mid: #c2b29c;
+	--ink-low: #8f7f6e;
+	/* A step lighter than the brand mustard #e8a91c (the stripes, tints and wordmark 3 keep it) so
+	   its chips read on a card over the lighter espresso. */
+	--accent: #e9ae28;
+	--accent-deep: #e0701f;
+	--accent-ink: #22130c;
+	--good: #a9b94a;
+	--good-ink: #22130c;
+	--warn: #f08a3c;
+	--warn-ink: #22130c;
+	/* A step lighter than the brand red #f0694c (its tints keep it) so an error chip reads on a card. */
+	--bad: #f17256;
+	--bad-ink: #22130c;
+	--bad-soft: #f59a80;
+	--star: #e8a91c;
+	--glow: #4a2614;
+	--on-brand: #22130c;
+	/* Disco's olive --good sits outside the gold and orange around a switch. */
+	--switch-on: var(--accent);
+
+	--accent-a10: rgba(232, 169, 28, 0.1);
+	--accent-a18: rgba(232, 169, 28, 0.18);
+	--accent-a28: rgba(232, 169, 28, 0.28);
+	--accent-a40: rgba(232, 169, 28, 0.4);
+	--accent-a55: rgba(232, 169, 28, 0.55);
+	--accent-deep-a06: rgba(224, 112, 31, 0.06);
+	--accent-deep-a14: rgba(224, 112, 31, 0.14);
+	--accent-deep-a22: rgba(224, 112, 31, 0.22);
+	--accent-deep-a35: rgba(224, 112, 31, 0.35);
+	--good-a13: rgba(169, 185, 74, 0.13);
+	--warn-a14: rgba(240, 138, 60, 0.14);
+	--warn-a35: rgba(240, 138, 60, 0.35);
+	--bad-a14: rgba(240, 105, 76, 0.14);
+	--bad-a30: rgba(240, 105, 76, 0.3);
+	--bad-a40: rgba(240, 105, 76, 0.4);
+
+	--font-ui: 'Chivo', 'Trebuchet MS', sans-serif;
+	--font-display: 'Fraunces', Georgia, serif;
+	--font-display-weight: 900;
+	--font-mono: 'Chivo Mono', ui-monospace, monospace;
+	--wm-font: 'Fraunces', Georgia, serif;
+	--wm-weight: 900;
+	--wm-tracking: -0.01em;
+	--wm-body: linear-gradient(#f4e4c1, #f4e4c1);
+	--wm-j: linear-gradient(#e0701f, #e0701f);
+	--wm-3: linear-gradient(#e8a91c, #e8a91c);
+	--wm-effect: drop-shadow(0.04em 0.04em 0 #b5421f);
+	--wm-tile: none;
+	/* Chivo Mono is wide: at 0.2em "Scan to sing" wrapped under the rail's code. */
+	--label-tracking: 0.1em;
+
+	--r-xs: 0;
+	--r-sm: 2px;
+	--r-md: 2px;
+	--r-lg: 4px;
+	--r-xl: 6px;
+	/* Things arrive with a little roller-skate overshoot. */
+	--ease: cubic-bezier(0.34, 1.3, 0.5, 1);
+	--press-transform: scale(0.96);
+	--page-bg:
+		linear-gradient(#e8a91c 0 5px, #e0701f 5px 10px, #b5421f 10px 15px, transparent 15px) no-repeat,
+		radial-gradient(900px 500px at 82% -10%, #4a2614, transparent 60%) no-repeat,
+		#22130c;
+	--surface-glass: rgba(59, 33, 22, 0.95);
+	--surface-now: linear-gradient(120deg, rgba(224, 112, 31, 0.24), rgba(232, 169, 28, 0.06));
+	/* Espresso letters (--on-brand) read on the gold and orange where white can't; the rust
+	   foot is lifted from #b5421f so they read there too. */
+	--brand-gradient: linear-gradient(135deg, #e8a91c 0%, #e0701f 50%, #db552b 100%);
+	--warn-gradient: linear-gradient(135deg, #e8a91c, #e0701f);
+	--card-edge: 2px solid #3b2116;
+	--card-edge-strong: 2px solid #e8a91c;
+	--shadow-card: 4px 4px 0 #5a3522;
+	/* The card's sleeve offset: a longer rust one read as a second toast behind the first. */
+	--shadow-stage: 4px 4px 0 #5a3522;
+	--ring-selected: 4px 4px 0 #e0701f;
+
+	--tv-radius: 0.4vh;
+	--tv-radius-sm: 0.2vh;
+	--tv-glass: rgba(34, 19, 12, 0.84);
+	--tv-glass-quiet: rgba(34, 19, 12, 0.6);
+	--tv-dim: rgba(20, 11, 7, 0.7);
+	--tv-scrim: rgba(34, 19, 12, 0.6);
+	--tv-qr-plate: #fbf1dc;
+	/* The sunset stripes, in the brand's order on dark: cream, mustard, orange, rust. */
+	--stripe-1: #f4e4c1;
+	--stripe-2: #e8a91c;
+	--stripe-3: #e0701f;
+	--stripe-4: #b5421f;
+	--tv-stage-bg: #170c07;
+	/* The stripes stay inside the bottom safe margin, which no text enters, so they never run
+	   under a lyric. */
+	--tv-page-bg:
+		linear-gradient(transparent calc(100% - 3.6vh), #e8a91c calc(100% - 3.6vh) calc(100% - 2.4vh), #e0701f calc(100% - 2.4vh) calc(100% - 1.2vh), #b5421f calc(100% - 1.2vh)),
+		radial-gradient(1000px 620px at 50% 18%, #4a2614, transparent 72%),
+		#22130c;
+	--tv-beam: linear-gradient(rgba(232, 169, 28, 0.9), transparent 78%);
+}
+
+:root[data-theme='disco'][data-screen='tv'] {
+	/* /display's own body would otherwise carry the phone's top stripes. */
+	--page-bg: var(--tv-page-bg);
+}

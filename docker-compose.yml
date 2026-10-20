@@ -1,0 +1,59 @@
+services:
+  karaoke:
+    # The published image (amd64 and arm64): `docker compose pull && docker compose up -d`.
+    # To run your own changes instead, `docker compose up -d --build` builds it from here.
+    image: ghcr.io/jrow3/jaraok3:${JARAOK3_VERSION:-latest}
+    build: .
+    container_name: karaoke
+    restart: unless-stopped
+    ports:
+      # Host port KARAOKE_PORT (3000 unless set in .env) -> container 3000.
+      - '${KARAOKE_PORT:-3000}:3000'
+    environment:
+      - LIBRARY_PATH=/library
+      - DB_PATH=/data/index.db
+      - YT_DLP=/usr/local/bin/yt-dlp
+      # Admin PIN. Set ADMIN_PIN in the .env next to this file. If empty, the
+      # admin page is UNPROTECTED (fine for a first boot; set it before exposing).
+      - ADMIN_PIN=${ADMIN_PIN:-}
+      # Optional Last.fm API key for song recommendations. Without it, recs fall
+      # back to library-only signals (same-artist, trending, crowd-pleasers).
+      - LASTFM_API_KEY=${LASTFM_API_KEY:-}
+      # Where the TV-display on/off flag is written for the host watcher to read.
+      - CONTROL_DIR=/control
+      # The address guests open, for the TV's address line and QR code. Unset, the TV
+      # shows the address it was opened at; set it when the TV loads from localhost
+      # (the kiosk does) but guests use a public address.
+      - JOIN_URL=${JOIN_URL:-}
+      # On-demand downloads of non-embeddable picks: where the final mp4 lands (a
+      # rw subfolder of the library) and the fast scratch dir for download/merge.
+      - DOWNLOADS_DIR=/library/downloads
+      - TEMP_DIR=/data/tmp
+      # Optional cookies.txt from a spare Google account, for when YouTube asks this
+      # server's IP to sign in (see DEPLOY.md). Without the file, yt-dlp runs signed out.
+      - YT_COOKIES=/cookies/youtube.txt
+      # Parts that need particular hardware or services, switched on or off (see .env.example).
+      - MIXER=${MIXER:-off}
+      - MIC_INPUTS=${MIC_INPUTS:-2}
+      - KIOSK=${KIOSK:-off}
+      - YOUTUBE=${YOUTUBE:-on}
+      - DOWNLOADS=${DOWNLOADS:-on}
+      - LIBRARY_RECURSIVE=${LIBRARY_RECURSIVE:-on}
+      - PUBLIC_APP_NAME=${PUBLIC_APP_NAME:-}
+    volumes:
+      # Host path to the karaoke drive, mounted read-only. Set KARAOKE_LIBRARY
+      # in a .env next to this file (see DEPLOY.md).
+      - ${KARAOKE_LIBRARY:?set KARAOKE_LIBRARY to the karaoke drive path}:/library:ro
+      # Nested read-write mount for just downloads/, so the app can write on-demand
+      # downloads while the rest of the library stays read-only. Point KARAOKE_DOWNLOADS
+      # at a downloads/ folder inside your library; unset, they go to ./downloads here.
+      - ${KARAOKE_DOWNLOADS:-./downloads}:/library/downloads:rw
+      # Persisted SQLite index (survives rebuilds; the first boot indexes here).
+      - karaoke-data:/data
+      # TV-display control flag, read by the host kiosk watcher (see DEPLOY.md).
+      - ./control:/control
+      # Read-write because yt-dlp saves the refreshed session back into the file.
+      - ./cookies:/cookies:rw
+
+volumes:
+  karaoke-data:

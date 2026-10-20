@@ -1,0 +1,139 @@
+/* Swiss (brand direction 03): paper, ink and one red, on a strict grid. Square corners,
+   hard rules, and motion that cuts in steps instead of gliding. */
+
+@font-face {
+	font-family: 'Archivo';
+	font-style: normal;
+	font-weight: 300 900;
+	font-stretch: 62% 125%;
+	font-display: swap;
+	src: url('/fonts/archivo-latin.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'IBM Plex Mono';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/fonts/ibm-plex-mono-400-latin.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'IBM Plex Mono';
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+	src: url('/fonts/ibm-plex-mono-600-latin.woff2') format('woff2');
+}
+
+:root[data-theme='swiss'] {
+	--bg-0: #f3f1ec;
+	--bg-1: #ffffff;
+	--s1: #ffffff;
+	--s2: #e9e6df;
+	--s3: #cfcbc3;
+	--line: #111111;
+	--line-soft: #cfcbc3;
+	--ink-hi: #111111;
+	--ink-mid: #5b5954;
+	--ink-low: #85817a;
+	/* The signal red #ff2e1f (the wordmark keeps it), deepened just enough to pass as text on
+	   paper and on its own tinted chips. */
+	--accent: #b2160a;
+	--accent-deep: #111111;
+	--accent-ink: #ffffff;
+	--good: #1d6b36;
+	--good-ink: #ffffff;
+	--warn: #8a5300;
+	--warn-ink: #ffffff;
+	--bad: #b3140a;
+	--bad-ink: #ffffff;
+	--bad-soft: #b3140a;
+	--star: #ff2e1f;
+	--glow: #f3f1ec;
+	--on-tile: #ffffff;
+
+	--accent-a10: rgba(178, 22, 10, 0.1);
+	--accent-a18: rgba(178, 22, 10, 0.18);
+	--accent-a28: rgba(178, 22, 10, 0.28);
+	--accent-a40: rgba(178, 22, 10, 0.4);
+	--accent-a55: rgba(178, 22, 10, 0.55);
+	--accent-deep-a06: rgba(17, 17, 17, 0.04);
+	--accent-deep-a14: rgba(17, 17, 17, 0.1);
+	--accent-deep-a22: rgba(17, 17, 17, 0.14);
+	--accent-deep-a35: rgba(17, 17, 17, 0.25);
+	--good-a13: rgba(29, 107, 54, 0.12);
+	--warn-a14: rgba(138, 83, 0, 0.12);
+	--warn-a35: rgba(138, 83, 0, 0.35);
+	--bad-a14: rgba(179, 20, 10, 0.1);
+	--bad-a30: rgba(179, 20, 10, 0.3);
+	--bad-a40: rgba(179, 20, 10, 0.4);
+
+	--font-ui: 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	--font-display: 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	--font-display-weight: 900;
+	--font-display-stretch: 68%;
+	--font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+	--wm-font: 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	--wm-weight: 850;
+	--wm-stretch: 92%;
+	--wm-tracking: -0.055em;
+	--wm-body: linear-gradient(#111111, #111111);
+	--wm-j: linear-gradient(#ff2e1f, #ff2e1f);
+	--wm-3: linear-gradient(#ff2e1f, #ff2e1f);
+	--wm-tile: none;
+	/* Plex Mono is wide: at 0.2em "Scan to sing" wrapped under the rail's code. */
+	--label-tracking: 0.1em;
+
+	--r-xs: 0;
+	--r-sm: 0;
+	--r-md: 0;
+	--r-lg: 0;
+	--r-xl: 0;
+	--r-pill: 0;
+	--r-logo: 0;
+	/* Mechanical cuts, not glides: three hard steps, no easing. */
+	--ease: steps(3, end);
+	--t-fast: 120ms;
+	--t-base: 240ms;
+	--t-slow: 480ms;
+	--press-transform: translate(2px, 2px);
+	--press-filter: none;
+	--page-bg: #f3f1ec;
+	--surface-glass: rgba(255, 255, 255, 0.96);
+	/* Ink on paper: a red-tinted chip read as an error in a black-and-red system, so red is
+	   kept for the icons. */
+	--chip-surface: var(--s1);
+	--chip-edge: var(--line);
+	--chip-ink: var(--ink-hi);
+	--chip-icon: var(--accent);
+	--surface-now: linear-gradient(#ffffff, #ffffff);
+	--brand-gradient: linear-gradient(#d01a0c, #d01a0c);
+	--warn-gradient: linear-gradient(#8a5300, #8a5300);
+	--bad-gradient: linear-gradient(#b3140a, #b3140a);
+	--card-edge: 1px solid #111111;
+	--card-edge-strong: 4px solid #111111;
+	--shadow-card: none;
+	--shadow-stage: none;
+	--ring-focus: 0 0 0 3px #ff2e1f;
+	/* With the selected card's red edge, a 2px red outline; a black ring framed it heavier
+	   than any other state. */
+	--ring-selected: 0 0 0 1px var(--accent);
+
+	/* The TV is the same poster: paper with ink, so the lyrics sit in a black block. */
+	--tv-radius: 0;
+	--tv-radius-sm: 0;
+	--tv-glass: rgba(255, 255, 255, 0.94);
+	--tv-glass-line: #111111;
+	--tv-glass-quiet: rgba(255, 255, 255, 0.86);
+	--tv-scrim: rgba(243, 241, 236, 0.8);
+	--tv-qr-plate: #ffffff;
+	--tv-stage-bg: #f3f1ec;
+	--tv-page-bg: linear-gradient(#111111, #111111) 5vw calc(100% - 3vh) / 90vw 0.8vh no-repeat, #f3f1ec;
+	--tv-beam: none;
+}
+
+:root[data-theme='swiss'][data-screen='tv'] {
+	/* /display's own body would otherwise be the phone's plain paper. */
+	--page-bg: var(--tv-page-bg);
+}

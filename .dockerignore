@@ -1,0 +1,10 @@
+node_modules
+.svelte-kit
+build
+data
+cookies
+bin
+.env
+.git
+.vscode
+design
