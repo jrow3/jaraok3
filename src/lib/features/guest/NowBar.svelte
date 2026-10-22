@@ -1,10 +1,12 @@
 <script lang="ts">
 	import type { Party } from '$lib/party.svelte';
+	import { isPlayable } from '$lib/playable';
 
 	let { party, height = $bindable(0) }: { party: Party; height?: number } = $props();
 
 	let current = $derived(party.state.current);
-	let upNext = $derived(party.state.queue[0]);
+	// The song the server will really start: a download still running is passed over.
+	let upNext = $derived(party.state.queue.find(isPlayable));
 	let myPosition = $derived(party.state.queue.findIndex((item) => party.isMine(item)) + 1);
 </script>
 
