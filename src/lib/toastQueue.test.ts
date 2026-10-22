@@ -42,4 +42,15 @@ describe('createToaster', () => {
 		createToaster(list).show('Nope', { kind: 'err' });
 		expect(list[0].kind).toBe('err');
 	});
+
+	test('the same message is not stacked while it still shows', () => {
+		const list: ToastMsg[] = [];
+		const toaster = createToaster(list);
+		for (let i = 0; i < 50; i++) toaster.show('Couldn’t do that', { kind: 'err' });
+		toaster.show('Couldn’t do that');
+		expect(list.map((t) => t.kind)).toEqual(['err', 'ok']);
+		vi.advanceTimersByTime(3200);
+		toaster.show('Couldn’t do that', { kind: 'err' });
+		expect(list).toHaveLength(1);
+	});
 });

@@ -30,6 +30,9 @@ export function createToaster(list: ToastMsg[]) {
 
 	function show(text: string, options: ToastOptions = {}) {
 		const { kind = 'ok', action } = options;
+		// A drag that fails on every move would otherwise stack one toast per move.
+		const showing = action ? undefined : list.find((t) => !t.action && t.text === text && t.kind === kind);
+		if (showing) return showing.id;
 		const duration = options.duration ?? (action ? ACTION_DURATION_MS : DEFAULT_DURATION_MS);
 		const id = ++nextId;
 		list.push({ id, text, kind, action });
