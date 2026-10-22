@@ -12,7 +12,6 @@
 		minus: '<path d="M5 12h14"/>',
 		x: '<path d="m6 6 12 12M18 6 6 18"/>',
 		'chev-down': '<path d="m6 9 6 6 6-6"/>',
-		'chev-up': '<path d="m6 15 6-6 6 6"/>',
 		star: '<path d="m12 3.5 2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>',
 		'star-fill':
 			'<path d="m12 3.5 2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" fill="currentColor" stroke="none"/>',
@@ -20,9 +19,6 @@
 		up: '<path d="M12 19V6M6 12l6-6 6 6"/>',
 		down: '<path d="M12 5v13M6 12l6 6 6-6"/>',
 		top: '<path d="M12 20V9M6.5 14.5 12 9l5.5 5.5"/><path d="M5 4.5h14"/>',
-		download: '<path d="M12 4v11M6.5 10.5 12 16l5.5-5.5"/><path d="M4.5 20h15"/>',
-		external:
-			'<path d="M14 5h5v5"/><path d="M19 5 10.5 13.5"/><path d="M19 14v4.5A1.5 1.5 0 0 1 17.5 20h-11A1.5 1.5 0 0 1 5 18.5v-11A1.5 1.5 0 0 1 6.5 6H11"/>',
 		edit: '<path d="M16.5 4.5a2.1 2.1 0 0 1 3 3L8 19l-4 1 1-4z"/>',
 		note: '<path d="M9 18V6l10-2v11.5"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="15.5" r="2.5"/>',
 		tv: '<rect x="3" y="5" width="18" height="13" rx="2"/><path d="M9 21h6"/>',

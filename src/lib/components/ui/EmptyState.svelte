@@ -1,20 +1,17 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
 	import Icon, { type IconName } from './Icon.svelte';
 
 	let {
 		icon,
 		title,
-		body,
-		action
-	}: { icon: IconName; title: string; body?: string; action?: Snippet } = $props();
+		body
+	}: { icon: IconName; title: string; body?: string } = $props();
 </script>
 
 <div class="empty-state">
 	<span class="icon"><Icon name={icon} size={22} /></span>
 	<p class="title">{title}</p>
 	{#if body}<p class="body">{body}</p>{/if}
-	{#if action}<div class="action">{@render action()}</div>{/if}
 </div>
 
 <style>
@@ -48,8 +45,5 @@
 		margin: 0;
 		font-size: var(--fs-sm);
 		color: var(--ink-mid);
-	}
-	.action {
-		margin-top: var(--sp-2);
 	}
 </style>

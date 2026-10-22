@@ -3,14 +3,13 @@
 
 	type Props =
 		| { kind: 'tier'; value: Tier; label: string }
-		| { kind: 'source'; value: 'local' | 'youtube' | 'local-video' | 'download'; label?: string }
+		| { kind: 'source'; value: 'local' | 'youtube' | 'local-video'; label?: string }
 		| { kind: 'note'; value: 'best' | 'no-lyrics' };
 
 	const SOURCE_LOOK = {
 		local: { className: 'tag-local', text: 'CDG' },
 		youtube: { className: 'tag-yt', text: 'YT' },
-		'local-video': { className: 'tag-vid', text: 'VID' },
-		download: { className: 'tag-dl', text: 'DL' }
+		'local-video': { className: 'tag-vid', text: 'VID' }
 	} as const;
 
 	// Plain-language quality notes for guests, in place of brand names and tiers (H2).

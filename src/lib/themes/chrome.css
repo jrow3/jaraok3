@@ -149,7 +149,6 @@
 	--wm-3: linear-gradient(180deg, #fbffe0 0%, #ddff6a 30%, #b8f400 48%, #5e8a00 53%, #a6dc00 75%, #eeffb0 100%);
 	--wm-effect: drop-shadow(0 0.025em 0 #05070a) drop-shadow(0 0.07em 0.09em rgba(0, 0, 0, 0.5));
 	--tv-glass: rgba(20, 26, 34, 0.74);
-	--tv-glass-quiet: rgba(20, 26, 34, 0.5);
 	--tv-dim: rgba(5, 7, 10, 0.62);
 	--tv-scrim: rgba(20, 26, 34, 0.6);
 	--tv-stage-bg: #0e1116;

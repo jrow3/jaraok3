@@ -126,7 +126,7 @@ const PHONE_PAIRS: Pair[] = [
 // The phone header's wordmark: display-size letters, so the large-text floor.
 const WORDMARK_PAIRS: Pair[] = ['--wm-body', '--wm-j', '--wm-3'].map((text) => ({ text, on: '--bg-0', min: 3 }));
 
-const TV_GLASS_PAIRS: Pair[] = ['--tv-glass', '--tv-glass-quiet'].flatMap((glass) =>
+const TV_GLASS_PAIRS: Pair[] = ['--tv-glass'].flatMap((glass) =>
 	['--tv-page-bg', '--tv-stage-bg'].flatMap((base) =>
 		['--ink-hi', '--ink-mid', '--accent', '--warn', '--bad'].map((text) => ({ text, on: glass, over: [base] }))
 	)

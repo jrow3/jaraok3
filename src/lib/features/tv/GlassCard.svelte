@@ -4,12 +4,11 @@
 	let {
 		isRow = false,
 		isCompact = false,
-		isQuiet = false,
 		children
-	}: { isRow?: boolean; isCompact?: boolean; isQuiet?: boolean; children: Snippet } = $props();
+	}: { isRow?: boolean; isCompact?: boolean; children: Snippet } = $props();
 </script>
 
-<div class={['glass-card', isRow && 'is-row', isCompact && 'is-compact', isQuiet && 'is-quiet']}>
+<div class={['glass-card', isRow && 'is-row', isCompact && 'is-compact']}>
 	{@render children()}
 </div>
 
@@ -32,9 +31,5 @@
 	}
 	.is-compact {
 		padding: calc(var(--tv-gap) / 2) var(--tv-gap);
-	}
-	.is-quiet {
-		border-color: var(--line-soft);
-		background: var(--tv-glass-quiet);
 	}
 </style>

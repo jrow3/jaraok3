@@ -156,7 +156,6 @@
 	--tv-qr-lg: 40vh;
 	--tv-glass: rgba(11, 9, 16, 0.72);
 	--tv-glass-line: var(--accent-a28);
-	--tv-glass-quiet: rgba(11, 9, 16, 0.45);
 	--tv-dim: rgba(4, 3, 8, 0.6);
 	/* Behind the words laid over a video: ink-hi reads on it over a white frame and a black one. */
 	--tv-scrim: rgba(11, 9, 16, 0.6);
