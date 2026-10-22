@@ -1,6 +1,7 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { youtubeCookieArgs } from './youtubeCookies';
+import { ytDlpBin } from './env';
 
 const run = promisify(execFile);
 
@@ -85,10 +86,8 @@ const TTL_MS = 5 * 60 * 1000;
 const searching = new Map<string, Promise<YtResult[]>>();
 
 async function fetchYtResults(query: string, n: number): Promise<YtResult[]> {
-	const { env } = await import('$env/dynamic/private');
-	const bin = env.YT_DLP || 'yt-dlp';
 	const { stdout } = await run(
-		bin,
+		ytDlpBin(),
 		[buildYtQuery(query, n), '--dump-single-json', '--flat-playlist', '--no-warnings', ...youtubeCookieArgs()],
 		{ timeout: 9000, maxBuffer: 16 * 1024 * 1024 }
 	);
@@ -137,10 +136,8 @@ export async function searchYouTube(
 // returns formats, yt-dlp would otherwise exit with an error and the pick would
 // fail open onto the TV, which would only find out when the video fails to play.
 export async function checkEmbeddable(ytId: string): Promise<boolean> {
-	const { env } = await import('$env/dynamic/private');
-	const bin = env.YT_DLP || 'yt-dlp';
 	const { stdout } = await run(
-		bin,
+		ytDlpBin(),
 		[
 			`https://www.youtube.com/watch?v=${ytId}`,
 			'--print',

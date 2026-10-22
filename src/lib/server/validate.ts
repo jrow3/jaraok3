@@ -1,8 +1,8 @@
 import type { AddInput } from '../types';
 import { isThemeId } from '../themes/themes';
+import { YOUTUBE_ID } from './env';
 
 const SOURCES = new Set(['local', 'youtube', 'local-video']);
-const YT_ID_RE = /^[\w-]{6,20}$/;
 // The shape ownerTagFor gives.
 const OWNER_TAG_RE = /^[0-9a-f]{16}$/;
 // Far past any real party's line; unremove puts anything beyond the end at the end anyway.
@@ -37,7 +37,7 @@ export function toAddInput(raw: unknown): AddInput | null {
 	}
 
 	if (input.ytId !== undefined) {
-		if (typeof input.ytId !== 'string' || !YT_ID_RE.test(input.ytId)) return null;
+		if (typeof input.ytId !== 'string' || !YOUTUBE_ID.test(input.ytId)) return null;
 		result.ytId = input.ytId;
 	}
 

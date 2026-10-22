@@ -1,5 +1,6 @@
 import { connect, type Socket } from 'node:net';
 import { join } from 'node:path';
+import { controlDir } from './env';
 
 export interface Levels {
 	inL: number;
@@ -10,7 +11,7 @@ export interface Levels {
 const RETRY_MS = 3000;
 
 export const levelSocketPath = () =>
-	process.env.MIXER_SOCKET ?? join(process.env.CONTROL_DIR ?? '/control', 'mixer.sock');
+	process.env.MIXER_SOCKET ?? join(controlDir(), 'mixer.sock');
 
 const isLevels = (value: unknown): value is Levels =>
 	!!value &&

@@ -4,6 +4,7 @@ import { relative } from 'node:path';
 import { mkdirSync } from 'node:fs';
 import { fileSafe } from './downloadRename';
 import { youtubeCookieArgs } from './youtubeCookies';
+import { YOUTUBE_ID, ytDlpBin } from './env';
 
 const run = promisify(execFile);
 
@@ -27,16 +28,15 @@ export function outputTemplate(name: SongName): string {
 // Merged with faststart on fast disk (TEMP_DIR), then moved to DOWNLOADS_DIR.
 // Throws on any yt-dlp failure (unavailable/geo-blocked/etc). No shell (execFile).
 export async function downloadVideo(ytId: string, name: SongName): Promise<string> {
-	if (!/^[\w-]{6,20}$/.test(ytId)) throw new Error(`bad video id: ${ytId}`);
+	if (!YOUTUBE_ID.test(ytId)) throw new Error(`bad video id: ${ytId}`);
 	const env = process.env;
-	const bin = env.YT_DLP || 'yt-dlp';
 	const downloadsDir = env.DOWNLOADS_DIR || '/library/downloads';
 	const tempDir = env.TEMP_DIR || '/data/tmp';
 	const libraryPath = env.LIBRARY_PATH || '/library';
 	mkdirSync(tempDir, { recursive: true });
 
 	const { stdout } = await run(
-		bin,
+		ytDlpBin(),
 		[
 			'-f', FORMAT,
 			'--merge-output-format', 'mp4',
