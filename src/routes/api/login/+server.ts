@@ -10,7 +10,8 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 	const pin = env.ADMIN_PIN ?? '';
 	if (!pin) return json({ ok: true }); // gate disabled
 
-	const body = await request.json().catch(() => ({}));
+	// A body of `null` parses fine but has no fields to read.
+	const body = (await request.json().catch(() => null)) ?? {};
 	const candidate = typeof body.pin === 'string' ? body.pin : '';
 	if (!checkPin(candidate, pin)) throw error(401, 'Wrong PIN');
 
