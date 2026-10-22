@@ -54,7 +54,7 @@
 		nameDraft = singer;
 		isEditingName = !singer;
 		hasAdded = localStorage.getItem(HAS_ADDED_KEY) === '1';
-		seeds = JSON.parse(localStorage.getItem(SEEDS_KEY) ?? '[]');
+		seeds = readSeeds();
 		localStorage.removeItem('karaoke:mine');
 		isNameKnown = true;
 		nextAlert.load();
@@ -65,6 +65,16 @@
 	$effect(() => {
 		if (party.received && party.ownerTag) nextAlert.check(mySongs);
 	});
+
+	// A value this page can't read would leave the page on its spinner; it starts over instead.
+	function readSeeds(): Seed[] {
+		try {
+			const saved = JSON.parse(localStorage.getItem(SEEDS_KEY) ?? '[]');
+			return Array.isArray(saved) ? saved : [];
+		} catch {
+			return [];
+		}
+	}
 
 	function rememberSeed(song: SearchResult) {
 		seeds = [
