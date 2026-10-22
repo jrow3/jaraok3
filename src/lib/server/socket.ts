@@ -59,8 +59,9 @@ function logAdd(item: Pick<QueueItem, 'songId' | 'artist' | 'title' | 'singer'>)
 			singer: item.singer,
 			session: currentSession()
 		});
-	} catch {
-		// logging must never disrupt playback
+	} catch (error) {
+		// Logging must never disrupt playback.
+		console.error('[karaoke] could not record a play:', error);
 	}
 }
 
