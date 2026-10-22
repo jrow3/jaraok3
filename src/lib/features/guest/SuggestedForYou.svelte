@@ -29,20 +29,22 @@
 
 	let suggestions = $state<SearchResult[]>([]);
 	const hold = createScrollHold();
+	let ticket = 0;
+	let isFirstLoad = true;
 
+	// Only the latest request lands: a slow earlier answer must not replace a newer one.
 	async function load() {
+		const mine = ++ticket;
 		const results = await fetchSuggestions(buildSuggestRequest(party.state, seeds));
-		hold.runWhenStill(() => (suggestions = results));
+		if (mine === ticket) hold.runWhenStill(() => (suggestions = results));
 	}
 
-	onMount(() => {
-		load();
-		return hold.cancel;
-	});
+	onMount(() => hold.cancel);
 
 	$effect(() => {
 		void (party.state.queue.length + '|' + (party.state.current?.id ?? ''));
-		const timer = setTimeout(load, REFRESH_DELAY_MS);
+		const timer = setTimeout(load, isFirstLoad ? 0 : REFRESH_DELAY_MS);
+		isFirstLoad = false;
 		return () => clearTimeout(timer);
 	});
 </script>
