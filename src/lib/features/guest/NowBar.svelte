@@ -40,6 +40,8 @@
 		border: var(--card-edge-strong);
 		border-radius: var(--r-lg);
 		padding: var(--sp-3);
+		/* iOS Safari before 18 knows only the prefixed name. */
+		-webkit-backdrop-filter: blur(8px);
 		backdrop-filter: blur(8px);
 		animation: bar-in var(--t-slow) var(--ease);
 	}
