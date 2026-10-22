@@ -16,7 +16,9 @@ async function call(params: Record<string, string>): Promise<unknown> {
 	const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
 	if (!res.ok) return null;
 	const json = await res.json();
-	cache.set(url, { at: Date.now(), value: json });
+	const now = Date.now();
+	for (const [old, entry] of cache) if (now - entry.at >= TTL_MS) cache.delete(old);
+	cache.set(url, { at: now, value: json });
 	return json;
 }
 

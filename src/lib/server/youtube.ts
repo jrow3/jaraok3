@@ -81,6 +81,26 @@ export function rankYtResults(
 
 const cache = new Map<string, { at: number; results: YtResult[] }>();
 const TTL_MS = 5 * 60 * 1000;
+// Guests typing the same search share one yt-dlp run.
+const searching = new Map<string, Promise<YtResult[]>>();
+
+async function fetchYtResults(query: string, n: number): Promise<YtResult[]> {
+	const { env } = await import('$env/dynamic/private');
+	const bin = env.YT_DLP || 'yt-dlp';
+	const { stdout } = await run(
+		bin,
+		[buildYtQuery(query, n), '--dump-single-json', '--flat-playlist', '--no-warnings', ...youtubeCookieArgs()],
+		{ timeout: 9000, maxBuffer: 16 * 1024 * 1024 }
+	);
+	return parseYtResults(stdout);
+}
+
+function remember(key: string, results: YtResult[]): void {
+	const now = Date.now();
+	for (const [old, entry] of cache) if (now - entry.at >= TTL_MS) cache.delete(old);
+	// An empty answer is as likely a yt-dlp hiccup as a real miss, so it is asked again.
+	if (results.length > 0) cache.set(key, { at: now, results });
+}
 
 // Keyless YouTube search via yt-dlp (silently karaoke-appended), cached by
 // query. Uses --flat-playlist so it stays fast; embed status isn't known here
@@ -99,21 +119,13 @@ export async function searchYouTube(
 	const cached = cache.get(key);
 	let raw = cached && Date.now() - cached.at < TTL_MS ? cached.results : undefined;
 	if (!raw) {
-		const { env } = await import('$env/dynamic/private');
-		const bin = env.YT_DLP || 'yt-dlp';
-		const { stdout } = await run(
-			bin,
-			[
-				buildYtQuery(query, n),
-				'--dump-single-json',
-				'--flat-playlist',
-				'--no-warnings',
-				...youtubeCookieArgs()
-			],
-			{ timeout: 9000, maxBuffer: 16 * 1024 * 1024 }
-		);
-		raw = parseYtResults(stdout);
-		cache.set(key, { at: Date.now(), results: raw });
+		let pending = searching.get(key);
+		if (!pending) {
+			pending = fetchYtResults(query, n).finally(() => searching.delete(key));
+			searching.set(key, pending);
+		}
+		raw = await pending;
+		remember(key, raw);
 	}
 	return rankYtResults(raw, { priority: channelPriority, blocklist: channelBlocklist });
 }
