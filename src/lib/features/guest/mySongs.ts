@@ -1,4 +1,3 @@
-import { queuePosition } from '../../queue';
 import { isPlayable } from '../../playable';
 import { songKey } from '../../songKey';
 import type { PartySnapshot, QueueItem, SongOutcome } from '../../types';
@@ -45,7 +44,8 @@ export function listMySongs(party: Pick<PartySnapshot, 'current' | 'queue' | 'en
 		title: item.title,
 		artist: item.artist,
 		status,
-		position: queuePosition(party.queue, item.id)
+		// 1-based spot in line, or 0 once it is no longer waiting.
+		position: party.queue.findIndex((queued) => queued.id === item.id) + 1
 	});
 	const nextId = nextUpId(party.queue);
 	const singing = party.current && isMine(party.current) ? [toSong(party.current, 'singing')] : [];
