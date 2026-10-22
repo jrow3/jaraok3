@@ -123,7 +123,8 @@ export function attachSocket(httpServer: HttpServer | Http2SecureServer): Server
 		on('queue:add', (raw: unknown, ack?: unknown) => {
 			if (!guard('add', ack)) return;
 			const input = toAddInput(raw);
-			if (!input) return reply(ack, { ok: false, error: 'invalid' });
+			if (!input || party.isFull) return reply(ack, { ok: false, error: 'invalid' });
+			if (input.source === 'youtube' && !features.isYoutubeOn) return reply(ack, { ok: false, error: 'disabled' });
 			const item = party.addOrStart({ ...input, ...houseSound, owner: caller.ownerTag });
 			logAdd(item);
 			broadcast();
@@ -132,7 +133,7 @@ export function attachSocket(httpServer: HttpServer | Http2SecureServer): Server
 		on('queue:add-download', async (raw: unknown, ack?: unknown) => {
 			if (!guard('add', ack)) return;
 			const input = toAddInput(raw);
-			if (!input || !input.ytId) return reply(ack, { ok: false, error: 'invalid' });
+			if (!input || !input.ytId || party.isFull) return reply(ack, { ok: false, error: 'invalid' });
 			// Off, earlier downloads are still in the library, and found by a local search.
 			if (!features.isDownloadsOn) return reply(ack, { ok: false, error: 'disabled' });
 			// Already pulled this exact video before? Queue the local copy instead of

@@ -13,6 +13,7 @@ const MAX_ENDED = 50;
 
 // Enough for a host who removes several songs in a row and then undoes them.
 const MAX_REMOVED = 20;
+const MAX_QUEUE = 200;
 // A host's Next this close to the end is the singer finishing, not a skip: karaoke tracks
 // often run a long outro after the last line.
 const NEAR_END_SECONDS = 45;
@@ -46,6 +47,11 @@ export class PartyState {
 	private isSkipUndoClosed = false;
 
 	constructor(private readonly timing: PartyTiming = {}) {}
+
+	// Far past any real party; it stops a script from queueing without end.
+	get isFull(): boolean {
+		return this.queue.length >= MAX_QUEUE;
+	}
 
 	add(input: AddInput & { owner?: string }): QueueItem {
 		const item: QueueItem = { ...input, id: newId() };
