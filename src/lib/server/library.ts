@@ -111,9 +111,7 @@ export function buildSongRecords(paths: string[]): { records: SongRecord[]; stat
 }
 
 const SCHEMA = `
-	DROP TABLE IF EXISTS songs_fts;
-	DROP TABLE IF EXISTS songs;
-	CREATE TABLE songs (
+	CREATE TABLE IF NOT EXISTS songs (
 		id INTEGER PRIMARY KEY,
 		artist TEXT NOT NULL,
 		title TEXT NOT NULL,
@@ -124,7 +122,7 @@ const SCHEMA = `
 		has_lyrics INTEGER NOT NULL,
 		offset_ms INTEGER NOT NULL DEFAULT 0
 	);
-	CREATE VIRTUAL TABLE songs_fts USING fts5(
+	CREATE VIRTUAL TABLE IF NOT EXISTS songs_fts USING fts5(
 		artist, title, content='songs', content_rowid='id', tokenize='trigram'
 	);
 `;
@@ -153,6 +151,44 @@ function listMediaPaths(root: string): string[] {
 	return paths;
 }
 
+// Rows are matched by file, so a song keeps its id across rescans: the queue, stars and
+// play log all refer to songs by id.
+function syncSongs(db: Database.Database, rows: SongRecord[]): void {
+	db.exec(SCHEMA);
+	const known = db.prepare('SELECT id, COALESCE(mp3_rel, video_rel) AS rel FROM songs').all() as {
+		id: number;
+		rel: string;
+	}[];
+	const idByFile = new Map(known.map((row) => [row.rel, row.id]));
+	const insert = db.prepare(
+		`INSERT INTO songs (artist, title, disc_tag, mp3_rel, cdg_rel, video_rel, has_lyrics)
+		 VALUES (@artist, @title, @discTag, @mp3File, @cdgFile, @videoFile, @hasLyrics)`
+	);
+	const update = db.prepare(
+		`UPDATE songs SET artist = @artist, title = @title, disc_tag = @discTag, mp3_rel = @mp3File,
+		 cdg_rel = @cdgFile, video_rel = @videoFile, has_lyrics = @hasLyrics WHERE id = @id`
+	);
+	for (const row of rows) {
+		const values = {
+			artist: row.artist,
+			title: row.title,
+			discTag: row.discTag,
+			mp3File: row.mp3File,
+			cdgFile: row.cdgFile,
+			videoFile: row.videoFile,
+			hasLyrics: row.hasLyrics ? 1 : 0
+		};
+		const file = row.mp3File ?? row.videoFile ?? '';
+		const id = idByFile.get(file);
+		if (id === undefined) insert.run(values);
+		else update.run({ ...values, id });
+		idByFile.delete(file);
+	}
+	const remove = db.prepare('DELETE FROM songs WHERE id = ?');
+	for (const id of idByFile.values()) remove.run(id);
+	db.exec("INSERT INTO songs_fts(songs_fts) VALUES('rebuild')");
+}
+
 export function buildIndex({ libraryPath, dbPath }: BuildIndexOptions): IndexStats {
 	const { records, stats } = buildSongRecords(listMediaPaths(libraryPath));
 
@@ -161,25 +197,7 @@ export function buildIndex({ libraryPath, dbPath }: BuildIndexOptions): IndexSta
 		db.pragma('journal_mode = WAL');
 		// One transaction, now that the app keeps running during a rescan: its searches
 		// read the old index until the new one is complete, never empty tables.
-		const rebuild = db.transaction((rows: SongRecord[]) => {
-			db.exec(SCHEMA);
-			const insert = db.prepare(
-				`INSERT INTO songs (artist, title, disc_tag, mp3_rel, cdg_rel, video_rel, has_lyrics)
-				 VALUES (@artist, @title, @discTag, @mp3File, @cdgFile, @videoFile, @hasLyrics)`
-			);
-			for (const row of rows) {
-				insert.run({
-					artist: row.artist,
-					title: row.title,
-					discTag: row.discTag,
-					mp3File: row.mp3File,
-					cdgFile: row.cdgFile,
-					videoFile: row.videoFile,
-					hasLyrics: row.hasLyrics ? 1 : 0
-				});
-			}
-			db.exec("INSERT INTO songs_fts(songs_fts) VALUES('rebuild')");
-		});
+		const rebuild = db.transaction((rows: SongRecord[]) => syncSongs(db, rows));
 		rebuild(records);
 	} finally {
 		db.close();

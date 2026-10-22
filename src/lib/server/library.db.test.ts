@@ -96,6 +96,46 @@ describe('buildIndex', () => {
 		}
 	});
 
+	test('keeps every song id across a rescan, so queued songs, stars and plays still point at the same file', () => {
+		touch('M - Middle [T].mp3');
+		touch('Z - Last [T].mp3');
+		buildIndex({ libraryPath: dir, dbPath });
+		const idsByPath = () => {
+			const db = new Database(dbPath, { readonly: true });
+			try {
+				const rows = db.prepare('SELECT id, mp3_rel AS rel FROM songs').all() as { id: number; rel: string }[];
+				return Object.fromEntries(rows.map((row) => [row.rel, row.id]));
+			} finally {
+				db.close();
+			}
+		};
+		const before = idsByPath();
+
+		touch('A - First [T].mp3');
+		rmSync(join(dir, 'Z - Last [T].mp3'));
+		buildIndex({ libraryPath: dir, dbPath });
+		const after = idsByPath();
+
+		expect(after['M - Middle [T].mp3']).toBe(before['M - Middle [T].mp3']);
+		expect(after['Z - Last [T].mp3']).toBeUndefined();
+		expect(Object.keys(after).sort()).toEqual(['A - First [T].mp3', 'M - Middle [T].mp3']);
+	});
+
+	test('picks up lyrics added beside an indexed mp3 without changing its id', () => {
+		touch('A - One [T].mp3');
+		buildIndex({ libraryPath: dir, dbPath });
+		touch('A - One [T].cdg');
+		buildIndex({ libraryPath: dir, dbPath });
+
+		const db = new Database(dbPath, { readonly: true });
+		try {
+			const rows = db.prepare('SELECT id, has_lyrics, cdg_rel FROM songs').all();
+			expect(rows).toEqual([{ id: 1, has_lyrics: 1, cdg_rel: 'A - One [T].cdg' }]);
+		} finally {
+			db.close();
+		}
+	});
+
 	describe('songs kept in folders', () => {
 		beforeEach(() => {
 			mkdirSync(join(dir, 'Pop', 'ABBA'), { recursive: true });
