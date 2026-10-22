@@ -8,8 +8,6 @@ vi.mock('$lib/server/ytdlpUpdate', () => ({
 	ytdlpVersion: async () => '2026.09.25',
 	updateYtdlp: async () => ({ kind: 'up-to-date', version: '2026.09.25' })
 }));
-// Vitest has no $lib alias; the real helper stands in so the file check still runs.
-vi.mock('$lib/server/youtubeCookies', () => import('../../../lib/server/youtubeCookies'));
 
 const { GET } = await import('./+server');
 
