@@ -116,7 +116,6 @@
 	/* Gel buttons carry white letters, so the ice-blue sheen is deepened to #007dbb, just past
 	   the brand aqua #0a6fd6, rather than the letters turned dark against the navy foot. */
 	--brand-gradient: linear-gradient(180deg, #007dbb 0%, #0a6fd6 55%, #07578f 100%);
-	--warn-gradient: linear-gradient(180deg, #fff3c4 0%, #ffc928 55%, #c99400 100%);
 	--card-edge: 1px solid #ffffff;
 	--card-edge-strong: 1.5px solid #3fb4ec;
 	--shadow-card: 0 1px 0 rgba(0, 0, 0, 0.07), 0 10px 20px -14px rgba(10, 20, 35, 0.45);

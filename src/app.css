@@ -57,7 +57,6 @@
 	--wm-effect: none;
 	--wm-tile: grid;
 	--wm-size: var(--fs-lg);
-	--label-tracking: 0.2em;
 	/* Inline letters keep the font's kerning; a theme that tilts or bounces them needs blocks. */
 	--wm-letter-display: inline;
 	--wm-wobble: 0deg;
@@ -108,8 +107,6 @@
 	--chip-icon: currentColor;
 	/* The highlight starts at the brand violet #7a5af8 so white reads on every part of it. */
 	--brand-gradient: radial-gradient(120% 120% at 30% 20%, #7a5af8, #5b3df0 70%);
-	--warn-gradient: radial-gradient(120% 120% at 30% 20%, #f4ca6e, #c98a12 70%);
-	--bad-gradient: radial-gradient(120% 120% at 30% 20%, var(--bad-soft), #d02a44 70%);
 	--surface-now: linear-gradient(120deg, var(--accent-deep-a22), var(--accent-deep-a06));
 	--shadow-tile-text: 0 1px 6px rgba(0, 0, 0, 0.35);
 	--ring-focus: 0 0 0 3px var(--accent-deep-a22);
@@ -122,7 +119,6 @@
 	--fs-md: 15px;
 	--fs-lg: 18px;
 	--fs-xl: 24px;
-	--fs-2xl: 32px;
 	--fs-input: 16px;
 
 	--sp-1: 4px;
@@ -131,7 +127,6 @@
 	--sp-4: 16px;
 	--sp-5: 20px;
 	--sp-6: 24px;
-	--sp-7: 28px;
 	--sp-8: 32px;
 	--tap: 44px;
 	--tap-sm: 36px;

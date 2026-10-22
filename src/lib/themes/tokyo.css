@@ -124,7 +124,6 @@
 	--tag-neutral: var(--s3);
 	/* The highlight is the brand cherry #d7263d, the lightest red cream letters still read on. */
 	--brand-gradient: radial-gradient(120% 120% at 30% 20%, #d7263d, #9e1628 70%);
-	--warn-gradient: radial-gradient(120% 120% at 30% 20%, #ffd45c, #c98a00 70%);
 	--card-edge: 2.5px solid #1e1a16;
 	--card-edge-strong: 3px solid #1e1a16;
 	--shadow-card: 0 3px 0 rgba(30, 26, 22, 0.28);

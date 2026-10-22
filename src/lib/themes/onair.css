@@ -88,8 +88,6 @@
 	--wm-tile: none;
 	/* Michroma is wide and thin: at the header's 18px it read smaller than the words beside it. */
 	--wm-size: 22px;
-	/* Plex Mono is wide too: at 0.2em "Scan to sing" wrapped under the rail's code. */
-	--label-tracking: 0.1em;
 
 	--r-xs: 2px;
 	--r-sm: 2px;
@@ -110,7 +108,6 @@
 	/* The lamp keeps its white letters, as a real ON AIR sign does: its hot center is a deeper
 	   vermilion and the lamp red #e3321c a step deeper, since dark letters would fail its #a8200e rim. */
 	--brand-gradient: radial-gradient(ellipse at 50% 35%, #e42a00 0%, #e0311c 45%, #a8200e 100%);
-	--warn-gradient: linear-gradient(#ffc267, #e99426);
 	--card-edge: 1px solid #000000;
 	--card-edge-strong: 1px solid #b8731f;
 	--shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 2px 0 #000000;
