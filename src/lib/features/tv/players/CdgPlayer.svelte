@@ -40,12 +40,6 @@
 		frameId = requestAnimationFrame(draw);
 	}
 	const stopDrawing = () => cancelAnimationFrame(frameId);
-	let isDestroyed = false;
-	// A restart or a tap-to-start retry remounts the player for the same song id, so an old
-	// player's late failure would pass the stage's id check and skip a song that plays.
-	const reportFailure = () => {
-		if (!isDestroyed) onfailed?.();
-	};
 
 	onMount(async () => {
 		context = canvas.getContext('2d');
@@ -58,19 +52,16 @@
 				return;
 			}
 			if (!response.ok) {
-				reportFailure();
+				onfailed?.();
 				return;
 			}
 			const [{ default: Graphics }, buffer] = await Promise.all([import('cdgraphics'), response.arrayBuffer()]);
 			graphics = new Graphics(buffer);
 		} catch {
-			reportFailure();
+			onfailed?.();
 		}
 	});
-	onDestroy(() => {
-		isDestroyed = true;
-		stopDrawing();
-	});
+	onDestroy(stopDrawing);
 
 	$effect(() => {
 		audio.volume = volume / 100;
@@ -101,7 +92,7 @@
 			stopDrawing();
 			onended?.();
 		}}
-		onerror={reportFailure}
+		onerror={() => onfailed?.()}
 		ontimeupdate={() => ontime?.(audio.currentTime, audio.duration || 0)}
 	></audio>
 </div>

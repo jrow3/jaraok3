@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { untrack } from 'svelte';
+	import { onDestroy, untrack } from 'svelte';
 	import type { QueueItem } from '$lib/types';
 	import type { StagePlayback } from './stagePlayback.svelte';
 	import CdgPlayer from './players/CdgPlayer.svelte';
@@ -16,8 +16,16 @@
 	// Pinned at mount: a report that arrives after a skip must name the old song, which
 	// the stage and the server both ignore, not the song that replaced it.
 	const mountedItem = untrack(() => item);
-	const onended = () => playback.ended(mountedItem.id);
-	const onfailed = (errorCode?: number) => playback.fail(mountedItem, errorCode);
+	// A restart or a tap-to-start retry remounts the player for the same song id, so an old
+	// player's late report would pass the stage's id check and end a song that plays.
+	let isDestroyed = false;
+	onDestroy(() => (isDestroyed = true));
+	const onended = () => {
+		if (!isDestroyed) playback.ended(mountedItem.id);
+	};
+	const onfailed = (errorCode?: number) => {
+		if (!isDestroyed) playback.fail(mountedItem, errorCode);
+	};
 </script>
 
 {#if item.source === 'local' && item.songId != null}
