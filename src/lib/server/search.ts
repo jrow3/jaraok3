@@ -1,5 +1,6 @@
 import type Database from 'better-sqlite3';
 import type { Tier } from '../types';
+import { tierOf } from '../features/host/settingsModel';
 
 export interface SongRow {
 	id: number;
@@ -56,10 +57,6 @@ export function brandKey(discTag: string | null): string {
 	return discTag.replace(/karaoke/gi, '').replace(/[^a-z0-9]/gi, '').toLowerCase();
 }
 
-export function tierOf(discTag: string | null, tiers: BrandTiers): Tier {
-	return (discTag && tiers[discTag]) || 'yellow';
-}
-
 const TIER_RANK: Record<Tier, number> = { green: 0, yellow: 1, red: 2 };
 
 function toResult(row: SongRow, tiers: BrandTiers, starred: Set<number>): SearchResult {
@@ -69,7 +66,7 @@ function toResult(row: SongRow, tiers: BrandTiers, starred: Set<number>): Search
 		title: row.title,
 		discTag: row.disc_tag,
 		hasLyrics: row.has_lyrics === 1,
-		tier: tierOf(row.disc_tag, tiers),
+		tier: tierOf(tiers, row.disc_tag ?? ''),
 		isStarred: starred.has(row.id),
 		source: row.video_rel ? 'local-video' : 'local'
 	};
@@ -93,7 +90,7 @@ function sortVersions(rows: SongRow[], { priority = [], tiers = {}, starred = ne
 		const i = pri.indexOf(brandKey(r.disc_tag));
 		return i === -1 ? pri.length : i;
 	};
-	const tierRank = (r: SongRow) => TIER_RANK[tierOf(r.disc_tag, tiers)];
+	const tierRank = (r: SongRow) => TIER_RANK[tierOf(tiers, r.disc_tag ?? '')];
 	return [...rows].sort(
 		(a, b) =>
 			starRank(a) - starRank(b) ||
