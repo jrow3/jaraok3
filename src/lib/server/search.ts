@@ -85,7 +85,7 @@ function groupResult(sorted: SongRow[], tiers: BrandTiers, starred: Set<number>)
 
 // Orders the renditions of one song, best first: a starred version always wins,
 // then a downloaded video, then quality tier, brand priority, lyrics, stable id.
-export function sortVersions(rows: SongRow[], { priority = [], tiers = {}, starred = new Set<number>() }: RankOptions = {}): SongRow[] {
+function sortVersions(rows: SongRow[], { priority = [], tiers = {}, starred = new Set<number>() }: RankOptions = {}): SongRow[] {
 	const pri = priority.map(brandKey);
 	const starRank = (r: SongRow) => (starred.has(r.id) ? 0 : 1);
 	const videoRank = (r: SongRow) => (r.video_rel ? 0 : 1);

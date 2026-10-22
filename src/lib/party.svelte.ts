@@ -34,7 +34,7 @@ const DEFAULT_DISPLAY: DisplaySettings = {
 const withPhoneTheme = (role: Role, input: AddInput) =>
 	role === 'guest' ? { ...input, theme: document.documentElement.dataset.theme } : input;
 
-export type PartyErrorCode = 'offline' | 'timeout' | 'forbidden' | 'stale' | 'invalid' | 'failed' | 'disabled';
+type PartyErrorCode = 'offline' | 'timeout' | 'forbidden' | 'stale' | 'invalid' | 'failed' | 'disabled';
 export class PartyActionError extends Error {
 	constructor(readonly code: PartyErrorCode) {
 		super(code);

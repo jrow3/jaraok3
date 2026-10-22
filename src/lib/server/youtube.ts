@@ -48,7 +48,7 @@ export function parseYtResults(stdout: string): YtResult[] {
 
 // Position of a result's channel in the host's preferred list (case-insensitive
 // substring match); unlisted channels sort after all listed ones.
-export function channelRank(channel: string, priority: string[]): number {
+function channelRank(channel: string, priority: string[]): number {
 	const c = channel.toLowerCase();
 	for (let i = 0; i < priority.length; i++) {
 		const p = priority[i].trim().toLowerCase();

@@ -16,9 +16,9 @@ export interface ToastOptions {
 	duration?: number;
 }
 
-export const DEFAULT_DURATION_MS = 3200;
+const DEFAULT_DURATION_MS = 3200;
 // Long enough to read the message and reach the Undo button.
-export const ACTION_DURATION_MS = 6000;
+const ACTION_DURATION_MS = 6000;
 
 export function createToaster(list: ToastMsg[]) {
 	let nextId = 0;
@@ -47,5 +47,5 @@ export function createToaster(list: ToastMsg[]) {
 		toast.action.run();
 	}
 
-	return { show, dismiss, runAction };
+	return { show, runAction };
 }

@@ -10,7 +10,7 @@
 	import Wordmark from '$lib/components/ui/Wordmark.svelte';
 	import { ADDED_HOLD_MS, createAddTracker, songAddKey, type AddPhase } from '$lib/features/search/addTracker';
 	import { libraryInput } from '$lib/features/search/api';
-	import type { Seed } from '$lib/features/search/suggestions';
+	import { MAX_SEEDS, type Seed } from '$lib/features/search/suggestions';
 	import type { SearchResult } from '$lib/features/search/types';
 	import GuestLineup from '$lib/features/guest/GuestLineup.svelte';
 	import GuestSearch from '$lib/features/guest/GuestSearch.svelte';
@@ -27,7 +27,6 @@
 	const SINGER_KEY = 'karaoke:singer';
 	const SEEDS_KEY = 'karaoke:myseeds';
 	const HAS_ADDED_KEY = 'karaoke:has-added';
-	const MAX_SEEDS = 20;
 	const UNDO_WINDOW_MS = 5000;
 
 	const party = connectParty('guest');
@@ -55,7 +54,6 @@
 		isEditingName = !singer;
 		hasAdded = localStorage.getItem(HAS_ADDED_KEY) === '1';
 		seeds = readSeeds();
-		localStorage.removeItem('karaoke:mine');
 		isNameKnown = true;
 		nextAlert.load();
 	});

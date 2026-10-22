@@ -69,8 +69,3 @@ export function coPlayed(
 		)
 		.all(...seedArtists, ...seedArtists, limit) as PlayedSong[];
 }
-
-export function clearPlays(db: Database.Database): void {
-	ensure(db);
-	db.exec('DELETE FROM plays');
-}

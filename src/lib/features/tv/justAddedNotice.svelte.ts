@@ -2,7 +2,7 @@ import type { Party } from '$lib/party.svelte';
 import { describeJustAdded, latestArrival } from './upNext';
 import { createReconnectGate } from './reconnectGate';
 
-export const JUST_ADDED_MS = 10_000;
+const JUST_ADDED_MS = 10_000;
 
 // The newest song added to the queue, for the stage's "Just added" card. It stays until the song
 // leaves the queue; only its first JUST_ADDED_MS on stage are fresh.
