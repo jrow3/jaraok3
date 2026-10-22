@@ -156,8 +156,15 @@ describe('the display token', () => {
 
 	test('a phone posing as the TV cannot fail the song on stage', async () => {
 		const phone = await join({ clientId: 'posing-phone-0123456789' });
-		const answer = await phone.emitWithAck('playback:failed', 1);
+		const answer = await phone.emitWithAck('playback:failed', 'no-such-song');
 		phone.close();
 		expect(answer).toEqual({ ok: false, error: 'forbidden' });
+	});
+
+	test('the TV with the token may report a failure', async () => {
+		const tv = await join({ clientId: 'the-tv-0123456789abcd', displayToken: 'tv-secret' });
+		const answer = await tv.emitWithAck('playback:failed', 'no-such-song');
+		tv.close();
+		expect(answer).toEqual({ ok: false, error: 'stale' });
 	});
 });

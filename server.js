@@ -35,6 +35,9 @@ if (songCount() === 0) {
 	console.log(`Indexed ${stats.songs} songs.`);
 }
 
+// Logged, not fatal: one failed download or lookup must not end the party for everyone.
+process.on('unhandledRejection', (reason) => console.error('[karaoke] unhandled rejection:', reason));
+
 const server = createServer(handler);
 attachSocket(server);
 server.listen(port, () => console.log(`Karaoke listening on :${port}`));
