@@ -138,3 +138,26 @@ describe('the sound on stage without a database', () => {
 		expect((await guest.emitWithAck('queue:add', song('SOS'))).ok).toBe(true);
 	});
 });
+
+describe('the display token', () => {
+	const options = { path: '/ws', transports: ['websocket'], query: { role: 'display' } };
+	const join = async (auth: Record<string, string>) => {
+		const client = connect(url, { ...options, auth });
+		await new Promise((resolve) => client.on('hello', resolve));
+		return client;
+	};
+
+	beforeAll(() => {
+		process.env.DISPLAY_TOKEN = 'tv-secret';
+	});
+	afterAll(() => {
+		delete process.env.DISPLAY_TOKEN;
+	});
+
+	test('a phone posing as the TV cannot fail the song on stage', async () => {
+		const phone = await join({ clientId: 'posing-phone-0123456789' });
+		const answer = await phone.emitWithAck('playback:failed', 1);
+		phone.close();
+		expect(answer).toEqual({ ok: false, error: 'forbidden' });
+	});
+});

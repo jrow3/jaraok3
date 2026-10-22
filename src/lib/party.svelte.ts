@@ -62,8 +62,9 @@ function clientId(): string {
 // reactive state. Actions return promises that reject (PartyActionError) instead of
 // being buffered while offline, so a tap made during a dropout never replays later.
 // Safe to call during SSR (the socket only opens in the browser). A TV passes the display
-// choices its page loaded with, so it never shows the defaults while the socket connects.
-export function connectParty(role: Role, initialDisplay: DisplaySettings = DEFAULT_DISPLAY) {
+// choices its page loaded with, so it never shows the defaults while the socket connects,
+// and the display token from its URL, which lets it act as the TV.
+export function connectParty(role: Role, initialDisplay: DisplaySettings = DEFAULT_DISPLAY, displayToken?: string) {
 	let state = $state<PartySnapshot>(EMPTY);
 	let connected = $state(false);
 	let received = $state(false);
@@ -74,7 +75,7 @@ export function connectParty(role: Role, initialDisplay: DisplaySettings = DEFAU
 	let socket: Socket | null = null;
 
 	if (browser) {
-		socket = io({ path: '/ws', query: { role }, auth: { clientId: clientId() } });
+		socket = io({ path: '/ws', query: { role }, auth: { clientId: clientId(), displayToken } });
 		socket.on('connect', () => (connected = true));
 		socket.on('disconnect', () => {
 			connected = false;

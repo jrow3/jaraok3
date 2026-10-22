@@ -22,13 +22,15 @@ UtmpMode=user
 Environment=XDG_SESSION_TYPE=wayland
 # The app's host port: KARAOKE_PORT in the app's .env (3000 unless you changed it).
 Environment=KARAOKE_PORT=3000
+# DISPLAY_TOKEN from the app's .env.
+Environment=DISPLAY_TOKEN=
 # cage = single-app Wayland kiosk compositor. Chromium's binary is `chromium` on
 # Debian; use `chromium-browser`, or /snap/bin/chromium on Ubuntu, if that's what your
 # distro ships. The autoplay flag lets audio play with no click. Point at localhost:
 # media never leaves the box.
 ExecStart=/usr/bin/cage -- /usr/bin/chromium \
   --kiosk \
-  --app=http://localhost:${KARAOKE_PORT}/display \
+  --app=http://localhost:${KARAOKE_PORT}/display?t=${DISPLAY_TOKEN} \
   --autoplay-policy=no-user-gesture-required \
   --noerrdialogs --disable-infobars --disable-translate \
   --check-for-update-interval=31536000

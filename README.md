@@ -122,7 +122,7 @@ Then open:
 | URL | Screen |
 | --- | --- |
 | `http://<server>:3000/` | Guest page: this is what the QR points at |
-| `http://<server>:3000/display` | Fullscreen TV display |
+| `http://<server>:3000/display?t=<DISPLAY_TOKEN>` | Fullscreen TV display |
 | `http://<server>:3000/admin` | Host controls (your PIN) |
 
 [`DEPLOY.md`](DEPLOY.md) covers publishing it for guests on mobile data, updating, and YouTube

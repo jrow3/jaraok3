@@ -35,8 +35,8 @@ sudo systemctl enable --now karaoke-kiosk-watch      # watcher runs always
 # karaoke-kiosk is NOT enabled — the watcher starts it on demand.
 ```
 
-Before `enable`: if the app isn't on host port 3000, set `KARAOKE_PORT` in
-`karaoke-kiosk.service` to match `.env`. After editing a unit, `sudo systemctl daemon-reload`.
+Before `enable`: set `DISPLAY_TOKEN` in `karaoke-kiosk.service` to the one in `.env`, and if
+the app isn't on host port 3000, set `KARAOKE_PORT` to match too. After editing a unit, `sudo systemctl daemon-reload`.
 
 After deploying a change to the TV page, a kiosk Chromium can keep showing the old
 page from its cache. Clear it and restart the kiosk (for snap Chromium the cache is

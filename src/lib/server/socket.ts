@@ -9,7 +9,7 @@ import { getDb } from './db';
 import { songHoldMs, getSettings, displaySettings } from './settings';
 import { onSettingsSaved } from './settingsSaved';
 import { verifyToken, COOKIE_NAME } from './auth';
-import { mayDo, cookieValue, ownerTagFor, type Caller, type PartyAction } from './permissions';
+import { mayDo, cookieValue, ownerTagFor, grantedRole, type Caller, type PartyAction } from './permissions';
 import { toAddInput, toRequeueInput, toIdList, toId, toSinger, toUndoRemoval, toProgress } from './validate';
 import { reply } from './reply';
 import { attachSystem } from './system';
@@ -25,14 +25,15 @@ let io: Server | null = null;
 // Read at every song change, because the settings API saves it from another module instance.
 const party = new PartyState({ holdMs: () => songHoldMs(getDb()) });
 
-const ROLES = new Set(['display', 'control', 'guest']);
 const currentDisplaySettings = () => displaySettings(getSettings(getDb()));
 
 function identify(socket: import('socket.io').Socket): Caller {
-	const requested = String(socket.handshake.query.role ?? 'guest');
-	const role = (ROLES.has(requested) ? requested : 'guest') as Caller['role'];
 	const pin = process.env.ADMIN_PIN ?? '';
 	const isHost = !pin || verifyToken(cookieValue(socket.handshake.headers.cookie, COOKIE_NAME), pin);
+	const role = grantedRole(String(socket.handshake.query.role ?? 'guest'), isHost, {
+		configured: process.env.DISPLAY_TOKEN,
+		sent: socket.handshake.auth?.displayToken
+	});
 	const raw = socket.handshake.auth?.clientId;
 	const clientId = typeof raw === 'string' && raw.length >= 16 && raw.length <= 128 ? raw : socket.id;
 	return { role, isHost, ownerTag: ownerTagFor(clientId) };

@@ -21,6 +21,9 @@ const isUnder = (path: string, prefixes: string[]) => prefixes.some((p) => path 
 if (!env.ADMIN_PIN) {
 	console.warn('[karaoke] ADMIN_PIN is not set — the admin page and its actions are UNPROTECTED.');
 }
+if (!env.DISPLAY_TOKEN) {
+	console.warn('[karaoke] DISPLAY_TOKEN is not set — any phone can claim to be the TV and skip songs.');
+}
 logYoutubeCookies();
 
 export const handle: Handle = async ({ event, resolve }) => {

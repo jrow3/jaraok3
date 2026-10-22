@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { mayDo, cookieValue, ownerTagFor, type Caller } from './permissions';
+import { mayDo, cookieValue, ownerTagFor, grantedRole, type Caller } from './permissions';
 
 const guest: Caller = { role: 'guest', isHost: false, ownerTag: 'tagA' };
 const display: Caller = { role: 'display', isHost: false, ownerTag: 'tagD' };
@@ -78,5 +78,24 @@ describe('ownerTagFor', () => {
 		expect(tag).not.toContain('secret');
 		expect(tag).toHaveLength(16);
 		expect(ownerTagFor('other')).not.toBe(tag);
+	});
+});
+
+describe('grantedRole', () => {
+	const token = { configured: 'tv-secret' };
+	test('a phone asking to be the display without the token stays a guest', () => {
+		expect(grantedRole('display', false, token)).toBe('guest');
+		expect(grantedRole('display', false, { ...token, sent: 'wrong' })).toBe('guest');
+	});
+	test('the TV with the token, or the host, is the display', () => {
+		expect(grantedRole('display', false, { ...token, sent: 'tv-secret' })).toBe('display');
+		expect(grantedRole('display', true, token)).toBe('display');
+	});
+	test('with no token configured the display is taken on trust', () => {
+		expect(grantedRole('display', false, {})).toBe('display');
+	});
+	test('unknown roles are guests, and the other roles need no token', () => {
+		expect(grantedRole('admin', false, token)).toBe('guest');
+		expect(grantedRole('control', false, token)).toBe('control');
 	});
 });

@@ -16,6 +16,8 @@ services:
       # Admin PIN. Set ADMIN_PIN in the .env next to this file. If empty, the
       # admin page is UNPROTECTED (fine for a first boot; set it before exposing).
       - ADMIN_PIN=${ADMIN_PIN:-}
+      # The TV opens /display?t=DISPLAY_TOKEN; without it a phone could pose as the TV.
+      - DISPLAY_TOKEN=${DISPLAY_TOKEN:-}
       # Optional Last.fm API key for song recommendations. Without it, recs fall
       # back to library-only signals (same-artist, trending, crowd-pleasers).
       - LASTFM_API_KEY=${LASTFM_API_KEY:-}

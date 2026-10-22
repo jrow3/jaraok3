@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
+	import { page } from '$app/state';
 	import type { PageProps } from './$types';
 	import { connectParty } from '$lib/party.svelte';
 	import { createJustAddedNotice } from '$lib/features/tv/justAddedNotice.svelte';
@@ -13,7 +14,7 @@
 	let { data }: PageProps = $props();
 
 	// Only the first value: the socket keeps the choices current after that.
-	const party = connectParty('display', untrack(() => data.display));
+	const party = connectParty('display', untrack(() => data.display), page.url.searchParams.get('t') ?? undefined);
 	const justAdded = createJustAddedNotice(party);
 	const movedAhead = createMovedAheadNotice(party);
 
