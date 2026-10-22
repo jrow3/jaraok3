@@ -3,8 +3,10 @@ node_modules
 build
 data
 cookies
+control
+downloads
+docs
 bin
 .env
 .git
 .vscode
-design
