@@ -1,7 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-vi.mock('$env/dynamic/private', () => ({ env: {} }));
-
 const ytdlp = vi.hoisted(() => ({ runs: 0, stdout: '' }));
 vi.mock('node:child_process', () => ({
 	execFile: (_bin: string, _args: string[], _options: unknown, done: (e: Error | null, out?: { stdout: string }) => void) => {

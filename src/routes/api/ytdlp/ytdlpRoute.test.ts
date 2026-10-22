@@ -3,7 +3,6 @@ import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-vi.mock('$env/dynamic/private', () => ({ env: {} }));
 vi.mock('$lib/server/ytdlpUpdate', () => ({
 	ytdlpVersion: async () => '2026.09.25',
 	updateYtdlp: async () => ({ kind: 'up-to-date', version: '2026.09.25' })
