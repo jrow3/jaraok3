@@ -6,6 +6,8 @@ services:
     build: .
     container_name: karaoke
     restart: unless-stopped
+    # Reaps the yt-dlp and ffmpeg processes a download leaves behind when it times out.
+    init: true
     ports:
       # Host port KARAOKE_PORT (3000 unless set in .env) -> container 3000.
       - '${KARAOKE_PORT:-3000}:3000'

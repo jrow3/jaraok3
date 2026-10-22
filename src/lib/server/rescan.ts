@@ -2,9 +2,12 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import { resolve } from 'node:path';
 import type { IndexStats } from './library';
 
-// From the working directory: the server, the dev server and the tests all run from
-// the project root, and the production image copies src/ next to server.js.
-const JOB = resolve('src/lib/server/reindexJob.ts');
+// From the working directory: the server, the dev server and the tests all run from the
+// project root. Production runs the job `npm run build` bundled; dev and tests the source.
+const JOB =
+	process.env.NODE_ENV === 'production'
+		? [resolve('build/node/reindexJob.js')]
+		: ['--import', 'tsx', resolve('src/lib/server/reindexJob.ts')];
 
 // A full rescan of even a ~100k-song library is normally well under this. A scan stuck on
 // a slow or unplugged drive would otherwise hold every later rescan behind it.
@@ -14,7 +17,7 @@ let running: Promise<IndexStats> | null = null;
 
 // A second tap while a scan runs joins it instead of reading the drive twice.
 export function rescan(libraryPath: string, dbPath: string): Promise<IndexStats> {
-	running ??= runJob(['--import', 'tsx', JOB, libraryPath, dbPath]).finally(() => (running = null));
+	running ??= runJob([...JOB, libraryPath, dbPath]).finally(() => (running = null));
 	return running;
 }
 
