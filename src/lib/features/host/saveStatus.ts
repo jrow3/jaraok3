@@ -7,7 +7,7 @@ export type SaveOutcome = 'saved' | 'failed' | 'expired';
 // Long enough to notice after a tap, short enough that a settled page shows no noise.
 export const SAVED_SHOW_MS = 2000;
 
-// Each setting belongs to the section whose heading shows whether it saved (F10).
+// Each setting belongs to the section whose heading shows whether it saved.
 // Stars have no heading; a failed star shows a toast instead.
 const SECTION_OF: Record<keyof SettingsFields, SaveSection> = {
 	recsEnabled: 'guests',

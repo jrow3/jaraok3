@@ -6,7 +6,7 @@ export const ADDED_HOLD_MS = 900;
 export const songAddKey = (songId: number) => `song:${songId}`;
 export const videoAddKey = (ytId: string) => `yt:${ytId}`;
 
-// One add per row at a time (F2): a tap while the row is adding, or while its check
+// One add per row at a time: a tap while the row is adding, or while its check
 // still shows, does nothing and resolves to null.
 export function createAddTracker(phases: Record<string, AddPhase>) {
 	async function run<T>(key: string, add: () => Promise<T>): Promise<T | null> {

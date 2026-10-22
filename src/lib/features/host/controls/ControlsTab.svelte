@@ -39,7 +39,7 @@
 
 <div class="tab">
 	<NowPlaying {party} {settings} ontogglestar={toggleStar} />
-	<!-- Right under the now card, so a one-handed host reaches it without scrolling past the line (L2). -->
+	<!-- Right under the now card, so a one-handed host reaches it without scrolling past the line. -->
 	<AddSong {party} {controls} onadd={addLibrarySong} ontogglestar={toggleStar} />
 	<UpNext {party} {settings} />
 	<RecentlyPlayed {party} {settings} ontogglestar={toggleStar} />

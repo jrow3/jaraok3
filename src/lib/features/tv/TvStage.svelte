@@ -36,7 +36,7 @@
 		movedAhead: MovedAheadNote | null;
 	} = $props();
 
-	// Long enough to read who's up, then the name gets out of the lyrics' way (L4).
+	// Long enough to read who's up, then the name gets out of the lyrics' way.
 	const NAME_SHOW_MS = 8000;
 	// Matches --tv-fade, for the fades Svelte runs as a card comes and goes.
 	const FADE_MS = 900;
@@ -136,7 +136,7 @@
 		transform: translateX(-50%);
 	}
 
-	/* CDG: the lyrics keep their 300:216 shape; the rail on the left takes the rest (B11), the
+	/* CDG: the lyrics keep their 300:216 shape; the rail on the left takes the rest, the
 	   notices included, so nothing lands on the lyrics. */
 	.is-rail {
 		display: grid;
@@ -178,7 +178,7 @@
 		justify-self: end;
 	}
 
-	/* Full-screen CDG and video: the overlays sit in the screen's corners (L4). Beside full-screen
+	/* Full-screen CDG and video: the overlays sit in the screen's corners. Beside full-screen
 	   lyrics they keep to the bands, so none of them lands on a lyric. */
 	.is-band > *,
 	.is-video > * {

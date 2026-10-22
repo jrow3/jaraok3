@@ -37,7 +37,7 @@
 	let singer = $state('');
 	let nameDraft = $state('');
 	// Stays false until the browser has read the saved name, so a returning guest
-	// never sees the name form flash (X3).
+	// never sees the name form flash.
 	let isNameKnown = $state(false);
 	let isEditingName = $state(false);
 	let hasAdded = $state(false);

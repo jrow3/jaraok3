@@ -30,7 +30,7 @@
 		note?: string;
 		size?: 'md' | 'sm';
 		hasAddIcon?: boolean;
-		/** 'adding' while this row's add is in flight, 'added' briefly once it lands (F2). */
+		/** 'adding' while this row's add is in flight, 'added' briefly once it lands. */
 		phase?: AddPhase;
 		onclick: () => void;
 		tags?: Snippet;

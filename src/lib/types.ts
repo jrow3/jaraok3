@@ -92,7 +92,7 @@ export interface DisplaySettings {
 	musicLevel: number;
 }
 
-/** What every host phone's System button shows (F13). */
+/** What every host phone's System button shows. */
 export interface SystemState {
 	/** The host asked for the TV to be on (the kiosk flag file). */
 	isOn: boolean;

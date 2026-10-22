@@ -6,7 +6,7 @@ export interface MovedAheadNote {
 }
 
 // The downloading songs that were ahead of `currentId` in the last queue the TV saw:
-// the server passed over them because they weren't ready (F6).
+// the server passed over them because they weren't ready.
 export function passedOver(previousQueue: QueueItem[], currentId: string): QueueItem[] {
 	const index = previousQueue.findIndex((item) => item.id === currentId);
 	return previousQueue.slice(0, Math.max(index, 0)).filter((item) => item.status === 'downloading');

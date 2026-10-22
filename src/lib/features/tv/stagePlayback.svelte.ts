@@ -76,7 +76,7 @@ export function createStagePlayback(getParty: () => Party) {
 	};
 }
 
-// A local song that should be playing but whose time hasn't moved is stuck (B12).
+// A local song that should be playing but whose time hasn't moved is stuck.
 function createStallWatch(party: Party, onstall: (item: QueueItem) => void, isExcused: () => boolean) {
 	const isPlaying = $derived(party.state.isPlaying);
 	let watch = startWatch(Date.now());

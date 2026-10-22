@@ -29,7 +29,7 @@
 		tone?: 'muted' | 'accent';
 		size?: 'md' | 'sm';
 		hasAddIcon?: boolean;
-		/** The library had nothing, so YouTube is the page's main action (F11). */
+		/** The library had nothing, so YouTube is the page's main action. */
 		isPrimary?: boolean;
 		videos?: YtResult[];
 		onadded: (item: QueueItem) => void;

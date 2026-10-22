@@ -1,4 +1,4 @@
-// One phrase per failure, shared by the guest and host pages (audit C5).
+// One phrase per failure, shared by the guest and host pages.
 export const COULD_NOT_ADD = 'Couldn\u2019t add that. Check your connection and try again.';
 export const CANT_PLAY_HERE = 'That video can\u2019t play here. Try another version.';
 export const COULD_NOT_REMOVE = 'Couldn\u2019t remove it. Check your connection and try again.';

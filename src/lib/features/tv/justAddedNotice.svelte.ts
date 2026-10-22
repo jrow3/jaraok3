@@ -17,7 +17,7 @@ export function createJustAddedNotice(party: Party) {
 	$effect(() => {
 		const ids = party.state.queue.map((item) => item.id);
 		// The placeholder before the first snapshot has an empty queue, and starting from it
-		// made the last queued song on a rebooted kiosk look just added (B8).
+		// made the last queued song on a rebooted kiosk look just added.
 		if (!party.received) return;
 		const verdict = checkSnapshot(party.state, party.connected);
 		if (verdict === 'wait') return;

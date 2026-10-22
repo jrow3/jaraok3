@@ -47,7 +47,7 @@
 
 	onMount(async () => {
 		context = canvas.getContext('2d');
-		// Uncaught, a lyrics load that breaks leaves the audio playing over a black canvas (B12).
+		// Uncaught, a lyrics load that breaks leaves the audio playing over a black canvas.
 		try {
 			const response = await fetch(`/media/${songId}.cdg`, { signal: loading.signal });
 			// A lone mp3 has no lyrics graphics; the media server answers 404 and it plays over the audio-only card.
@@ -113,7 +113,7 @@
 		overflow: hidden;
 	}
 	/* The lyrics keep their true 300:216 shape, centered at full height; the black player
-	   behind them fills the bands at the sides instead of stretching them to 16:9 (B11). */
+	   behind them fills the bands at the sides instead of stretching them to 16:9. */
 	canvas {
 		height: 100%;
 		margin: 0 auto;

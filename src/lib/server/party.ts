@@ -97,7 +97,7 @@ export class PartyState {
 		if (ending) this.recordEnd(item, ending);
 	}
 
-	// Undo for a removal (F9): the song goes back where it stood, keeping its id and
+	// Undo for a removal: the song goes back where it stood, keeping its id and
 	// owner, so its guest can still remove it and their card shows it waiting again.
 	unremove(id: string, index: number): QueueItem | null {
 		const item = this.removed.find((removed) => removed.id === id);
@@ -111,7 +111,7 @@ export class PartyState {
 		return item;
 	}
 
-	// Undo for the host's Next (F9): the skipped song comes back on stage from the
+	// Undo for the host's Next: the skipped song comes back on stage from the
 	// top and the song that replaced it goes back to the front of the line. Only
 	// while nothing else has left the stage since.
 	unskip(id: string): boolean {
@@ -151,7 +151,7 @@ export class PartyState {
 		if (this.current) {
 			this.isSkipUndoClosed = false;
 			this.history = [this.current, ...this.history].slice(0, 5);
-			// A song that never played isn't one sung tonight (B10); a skip still had a singer.
+			// A song that never played isn't one sung tonight; a skip still had a singer.
 			if (outcome !== 'failed') this.sungCount++;
 			this.recordEnd(this.current, outcome);
 		}

@@ -23,7 +23,7 @@
 		isNow?: boolean;
 		/** Animates the now-singing bars; paused songs show a still row. */
 		isPlaying?: boolean;
-		/** Just added: lights up for a moment so the host spots it (F2). */
+		/** Just added: lights up for a moment so the host spots it. */
 		isFresh?: boolean;
 		isMine?: boolean;
 		isPast?: boolean;
@@ -69,7 +69,7 @@
 				{#if hasSourceTag && !hasBrand}<span class="source-tag"><Tag kind="source" value={item.source} /></span>{/if}
 			</span>
 		{/if}
-		<!-- No progress bar: yt-dlp reports no progress we pass on, so a moving bar would be made up (F6). -->
+		<!-- No progress bar: yt-dlp reports no progress we pass on, so a moving bar would be made up. -->
 		{#if isDownloading}
 			<span class="status downloading"><span class="spin" aria-hidden="true"></span>Downloading, plays when ready</span>
 		{:else if isFailed}
@@ -151,7 +151,7 @@
 		font-size: var(--fs-xs);
 		color: var(--ink-mid);
 	}
-	/* One line at any width: the brand tag shrinks with an ellipsis, the short source tag stays whole (L1).
+	/* One line at any width: the brand tag shrinks with an ellipsis, the short source tag stays whole.
 	   A brand is only ever on a CDG disc, so a branded row leaves out CDG and the brand gets the room. */
 	.tags {
 		display: flex;

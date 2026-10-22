@@ -22,7 +22,7 @@ export function rescan(libraryPath: string, dbPath: string): Promise<IndexStats>
 }
 
 // A full scan and rebuild is seconds of synchronous work. In the server's process it
-// froze the socket and the media the TV was streaming (B6). spawn with an argument
+// froze the socket and the media the TV was streaming. spawn with an argument
 // list, no shell, so a path is never parsed as a command. Takes Node's arguments, the
 // limit and the way to stop the child so the tests can stand in a job that misbehaves.
 export function runJob(

@@ -18,7 +18,7 @@ export function upNextSongs(queue: QueueItem[], count: number): QueueItem[] {
 	return queue.filter(isPlayable).slice(0, count);
 }
 
-// A song in line that can't play yet, anywhere in the queue: its download hasn't finished, or failed (F6).
+// A song in line that can't play yet, anywhere in the queue: its download hasn't finished, or failed.
 export function downloadNote(queue: QueueItem[]): DownloadNote | null {
 	const item = queue.find((queued) => queued.status === 'downloading' || queued.status === 'failed');
 	if (!item) return null;

@@ -12,7 +12,7 @@
 		'local-video': { className: 'tag-vid', text: 'VID' }
 	} as const;
 
-	// Plain-language quality notes for guests, in place of brand names and tiers (H2).
+	// Plain-language quality notes for guests, in place of brand names and tiers.
 	const NOTE_LOOK = {
 		best: { className: 'tag-green', text: 'Best version' },
 		'no-lyrics': { className: 'tag-yellow', text: 'No lyrics on screen' }
