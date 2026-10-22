@@ -30,6 +30,10 @@ NODE_CHECK_SECONDS = 5
 RATE = 48000
 FRAMES_PER_READING = RATE // 15
 FLOOR_DB = -90.0
+# A hung pw-dump or wpctl must not stall the agent; the next poll tries again.
+COMMAND_TIMEOUT_SECONDS = 10
+# pw-record that dies at once (the interface unplugged) is started again no faster than this.
+READER_RESTART_SECONDS = 3
 
 
 def props_arg(filter_params: dict) -> str:
@@ -59,7 +63,7 @@ def input_levels(peaks: list[float], mic_inputs: int) -> dict:
 
 
 def run(command: list[str]) -> str:
-    return subprocess.run(command, check=True, capture_output=True, text=True).stdout
+    return subprocess.run(command, check=True, capture_output=True, text=True, timeout=COMMAND_TIMEOUT_SECONDS).stdout
 
 
 class Applier:
@@ -112,8 +116,15 @@ class LevelReader(threading.Thread):
             if len(chunk) == block:
                 self.peaks = peak_db(chunk, 2)
 
+    def is_dead(self) -> bool:
+        return self.process.poll() is not None
+
     def stop(self) -> None:
         self.process.terminate()
+        try:
+            self.process.wait(timeout=2)
+        except subprocess.TimeoutExpired:
+            self.process.kill()
 
 
 class LevelServer(threading.Thread):
@@ -133,22 +144,26 @@ class LevelServer(threading.Thread):
     def run(self) -> None:
         while True:
             client, _ = self.server.accept()
+            # A client that stops reading is dropped instead of stalling everyone's meters.
+            client.settimeout(1)
             with self.lock:
                 self.clients.append(client)
 
     def stream_forever(self) -> None:
         readers = None
+        started_at = 0.0
         while True:
             with self.lock:
                 clients = list(self.clients)
-            if clients and not readers:
-                readers = [LevelReader(SOURCE_NODE, False), LevelReader(SINK_NODE, True)]
-                for reader in readers:
-                    reader.start()
-            if not clients and readers:
+            if readers and (not clients or any(reader.is_dead() for reader in readers)):
                 for reader in readers:
                     reader.stop()
                 readers = None
+            if clients and not readers and time.monotonic() - started_at >= READER_RESTART_SECONDS:
+                started_at = time.monotonic()
+                readers = [LevelReader(SOURCE_NODE, False), LevelReader(SINK_NODE, True)]
+                for reader in readers:
+                    reader.start()
             if readers:
                 source, sink = readers
                 line = json.dumps({**input_levels(source.peaks, MIC_INPUTS), "room": max(sink.peaks)}) + "\n"
@@ -156,6 +171,7 @@ class LevelServer(threading.Thread):
                     try:
                         client.sendall(line.encode())
                     except OSError:
+                        client.close()
                         with self.lock:
                             self.clients.remove(client)
             time.sleep(FRAMES_PER_READING / RATE)
@@ -171,8 +187,9 @@ def watch_forever(applier: Applier, path: Path) -> None:
         try:
             if applier.check(path, is_due):
                 print(f"applied {path}", flush=True)
-        except (subprocess.CalledProcessError, ValueError, KeyError) as error:
-            # A half-started PipeWire or a bad file: say so, keep the last good sound, try again.
+        except (subprocess.SubprocessError, OSError, ValueError, KeyError) as error:
+            # A half-started PipeWire, a hung command, or a file replaced mid-read: say so, keep
+            # the last good sound, try again.
             print(f"could not apply: {error}", flush=True)
         time.sleep(POLL_SECONDS)
 
