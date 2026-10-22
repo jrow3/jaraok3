@@ -51,7 +51,9 @@ reverb during a guest's song (a knob or loading a preset) resets it too.
 ## Install (on the server, once)
 
 Run these as the user PipeWire runs as (the same user as the TV kiosk, if you use one).
-The paths assume the repo is at `~/karaoke`.
+The paths assume the repo is at `~/karaoke`. It must be the clone that holds
+`docker-compose.yml` (the TV kiosk's `/opt/karaoke` by default): the agent reads that
+clone's `control/` folder, and a different one leaves the Sound tab doing nothing.
 
 ```bash
 cd ~/karaoke

@@ -12,8 +12,9 @@ Admin "System on/off" button → control/display flag → watcher → karaoke-ki
 ```
 
 Assumes Debian/Ubuntu and the karaoke repo cloned at `/opt/karaoke`. Cloned somewhere
-else? Change `KARAOKE_HOME` in `karaoke-kiosk-watch.service` and the paths below. Run
-these on the server.
+else? Change `KARAOKE_HOME` in `karaoke-kiosk-watch.service` and the paths below. Using
+the mixer too? Its agent (`deploy/audio`) assumes `~/karaoke`: point both at the one clone
+that holds `docker-compose.yml`, since both read its `control/` folder. Run these on the server.
 
 ## 1. Packages + a kiosk user
 

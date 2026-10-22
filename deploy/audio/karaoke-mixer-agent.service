@@ -1,5 +1,6 @@
 # A systemd *user* unit: PipeWire runs as the user, so the agent must too.
-# Assumes the repo is at ~/karaoke; if not, change the three %h/karaoke paths below.
+# Assumes the repo is at ~/karaoke; if not, change the three %h/karaoke paths below. It
+# must be the clone holding docker-compose.yml, whose control/ folder the app writes to.
 # Install steps: deploy/audio/README.md.
 [Unit]
 Description=Karaoke mixer agent (Sound tab -> PipeWire Mic FX)
