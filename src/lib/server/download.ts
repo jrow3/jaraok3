@@ -55,5 +55,6 @@ export async function downloadVideo(ytId: string, name: SongName): Promise<strin
 
 	const filepath = stdout.trim().split('\n').filter(Boolean).pop()?.trim();
 	if (!filepath) throw new Error('download produced no file');
-	return relative(libraryPath, filepath);
+	// Stored with '/', as the indexer stores it, or a rescan on Windows loses the match.
+	return relative(libraryPath, filepath).replaceAll('\\', '/');
 }
