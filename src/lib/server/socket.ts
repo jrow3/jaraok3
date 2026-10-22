@@ -1,6 +1,6 @@
 import type { Server as HttpServer } from 'node:http';
 import type { Http2SecureServer } from 'node:http2';
-import { Server } from 'socket.io';
+import { Server, type Socket } from 'socket.io';
 import { PartyState, type QueueItem } from './party';
 import { completeDownload } from './downloads';
 import { recordPlay } from './playlog';
@@ -14,7 +14,6 @@ import { toAddInput, toRequeueInput, toIdList, toId, toSinger, toUndoRemoval, to
 import { reply } from './reply';
 import { attachSystem } from './system';
 import { readFeatures } from './features';
-import { refuseAll } from './refuse';
 import { createMixer, MIXER_EVENTS } from './mixer';
 import { mixerStore } from './mixerStore';
 import { holdTimer } from './holdTimer';
@@ -27,7 +26,13 @@ const party = new PartyState({ holdMs: () => songHoldMs(getDb()) });
 
 const currentDisplaySettings = () => displaySettings(getSettings(getDb()));
 
-function identify(socket: import('socket.io').Socket): Caller {
+// A feature switched off in .env still answers its events, so a page opened before the
+// switch gets a clear "disabled" instead of waiting out a timeout.
+function refuseAll(socket: Socket, events: readonly string[]): void {
+	for (const event of events) socket.on(event, (_raw: unknown, ack?: unknown) => reply(ack, { ok: false, error: 'disabled' }));
+}
+
+function identify(socket: Socket): Caller {
 	const pin = process.env.ADMIN_PIN ?? '';
 	const isHost = !pin || verifyToken(cookieValue(socket.handshake.headers.cookie, COOKIE_NAME), pin);
 	const role = grantedRole(String(socket.handshake.query.role ?? 'guest'), isHost, {
