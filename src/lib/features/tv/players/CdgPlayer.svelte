@@ -29,7 +29,11 @@
 	let frameId = 0;
 	let isAudioOnly = $state(false);
 
+	const loading = new AbortController();
+
 	function draw() {
+		// A lone mp3 never gets graphics; no need to wake 60 times a second for it.
+		if (isAudioOnly) return;
 		frameId = requestAnimationFrame(draw);
 		if (!graphics || !context) return;
 		const frame = graphics.render(audio.currentTime);
@@ -45,7 +49,7 @@
 		context = canvas.getContext('2d');
 		// Uncaught, a lyrics load that breaks leaves the audio playing over a black canvas (B12).
 		try {
-			const response = await fetch(`/media/${songId}.cdg`);
+			const response = await fetch(`/media/${songId}.cdg`, { signal: loading.signal });
 			// A lone mp3 has no lyrics graphics; the media server answers 404 and it plays over the audio-only card.
 			if (response.status === 404) {
 				isAudioOnly = true;
@@ -58,10 +62,13 @@
 			const [{ default: Graphics }, buffer] = await Promise.all([import('cdgraphics'), response.arrayBuffer()]);
 			graphics = new Graphics(buffer);
 		} catch {
-			onfailed?.();
+			if (!loading.signal.aborted) onfailed?.();
 		}
 	});
-	onDestroy(stopDrawing);
+	onDestroy(() => {
+		loading.abort();
+		stopDrawing();
+	});
 
 	$effect(() => {
 		audio.volume = volume / 100;
