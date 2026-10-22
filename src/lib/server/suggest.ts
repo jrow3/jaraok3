@@ -61,7 +61,8 @@ const CROWD_PLEASERS: Array<[string, string]> = [
 
 // Blends Last.fm similarity + the play-log (trending / sung-together) + same-artist +
 // a curated fallback, resolves everything to real library songs, drops excluded ids,
-// and returns the top `limit` as SearchResults. Never throws; degrades gracefully.
+// and returns the top `limit` as SearchResults. Without Last.fm it falls back to the
+// library's own signals.
 export async function suggestSongs(
 	db: Database.Database,
 	seed: Seed[],
