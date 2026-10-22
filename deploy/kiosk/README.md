@@ -84,7 +84,7 @@ interface from `deploy/audio/audio.env` and tuned live from the host's Sound tab
 ## 4. Test
 
 Set `ADMIN_PIN` in the `.env` next to `docker-compose.yml`, then
-`docker compose up -d --build`. In Admin, press **System off** in the header so it
+`docker compose up -d`. In Admin, press **System off** in the header so it
 reads **System on**: the TV should light up with the Display within ~1-2 s and go dark when
 turned back off. `journalctl -u karaoke-kiosk -f` shows kiosk logs.
 

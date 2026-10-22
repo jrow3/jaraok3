@@ -84,7 +84,7 @@ What's switched off doesn't show on any page, and the server refuses it too.
 
 ## Architecture
 
-SvelteKit 5 (adapter-node) built and wrapped by a small `server.js` that adds Socket.io: party state
+SvelteKit 2 and Svelte 5 (adapter-node) built and wrapped by a small `server.js` that adds Socket.io: party state
 (current song, queue, history) lives in memory on the server, and every client role (`guest`,
 `display`, `control`) receives live snapshots over `/ws`. The library index is better-sqlite3 with
 FTS5; media is served with HTTP Range support. On the display, [cdgraphics](https://github.com/bhj/cdgraphics)

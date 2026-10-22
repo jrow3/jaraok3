@@ -85,9 +85,11 @@ git pull                                   # the compose file, docs and deploy/ 
 docker compose pull && docker compose up -d
 ```
 
-With a pinned `JARAOK3_VERSION`, change it to the new release first. After adding songs to the library: **Host → Library → Rescan library** (or restart the
-container). If the TV is a kiosk, its browser may keep the old TV page cached after an
-update; see `deploy/kiosk/README.md`.
+With a pinned `JARAOK3_VERSION`, change it to the new release first. If the TV is a kiosk,
+its browser may keep the old TV page cached after an update; see `deploy/kiosk/README.md`.
+
+After adding songs to the library: **Host → Library → Rescan library** (or restart the
+container).
 
 The image ships the yt-dlp current at its release, and YouTube changes often. Between
 releases: **Host → Library → Advanced → YouTube downloader → Check for
