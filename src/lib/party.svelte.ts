@@ -70,6 +70,7 @@ export function connectParty(role: Role, initialDisplay: DisplaySettings = DEFAU
 	let received = $state(false);
 	let ownerTag = $state('');
 	let isHost = $state(false);
+	let grantedRole = $state<Role | null>(null);
 	let system = $state<SystemState | null>(null);
 	let display = $state<DisplaySettings>(initialDisplay);
 	let socket: Socket | null = null;
@@ -82,9 +83,10 @@ export function connectParty(role: Role, initialDisplay: DisplaySettings = DEFAU
 			// Offline, the last TV state may be stale; the server sends it again on reconnect.
 			system = null;
 		});
-		socket.on('hello', (hello: { ownerTag: string; isHost: boolean }) => {
+		socket.on('hello', (hello: { ownerTag: string; isHost: boolean; role: Role }) => {
 			ownerTag = hello.ownerTag;
 			isHost = hello.isHost;
+			grantedRole = hello.role;
 		});
 		socket.on('system', (next: SystemState) => (system = next));
 		socket.on('display-settings', (next: DisplaySettings) => (display = next));
@@ -122,6 +124,10 @@ export function connectParty(role: Role, initialDisplay: DisplaySettings = DEFAU
 		},
 		get isHost() {
 			return isHost;
+		},
+		/** The role the server granted, which can be less than asked for; null until it says. */
+		get grantedRole() {
+			return grantedRole;
 		},
 		/** The TV's power state, sent to host (`control`) pages only; null until the server says. */
 		get system() {

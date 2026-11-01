@@ -39,6 +39,10 @@ function identify(socket: Socket): Caller {
 		configured: process.env.DISPLAY_TOKEN,
 		sent: socket.handshake.auth?.displayToken
 	});
+	// A TV left on an old kiosk URL would otherwise sit on every finished song with no sign why.
+	if (socket.handshake.query.role === 'display' && role !== 'display') {
+		console.warn('[karaoke] a TV connected without a valid DISPLAY_TOKEN, so it joined as a guest');
+	}
 	const raw = socket.handshake.auth?.clientId;
 	const clientId = typeof raw === 'string' && raw.length >= 16 && raw.length <= 128 ? raw : socket.id;
 	return { role, isHost, ownerTag: ownerTagFor(clientId) };
@@ -102,7 +106,7 @@ export function attachSocket(httpServer: HttpServer | Http2SecureServer): Server
 	io.on('connection', (socket) => {
 		const caller = identify(socket);
 		socket.join(caller.role);
-		socket.emit('hello', { ownerTag: caller.ownerTag, isHost: caller.isHost });
+		socket.emit('hello', { ownerTag: caller.ownerTag, isHost: caller.isHost, role: caller.role });
 		socket.emit('state', party.snapshot());
 		if (caller.role === 'display') safely('display-settings', () => socket.emit('display-settings', currentDisplaySettings()));
 		if (features.isKioskOn) attachSystem(server, socket, caller);
