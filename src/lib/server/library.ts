@@ -110,22 +110,41 @@ export function buildSongRecords(paths: string[]): { records: SongRecord[]; stat
 	return { records, stats };
 }
 
+// AUTOINCREMENT so a deleted song's id is never handed to a new file: plays, stars and
+// queued songs still name the old id.
+const SONGS_COLUMNS = `
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	artist TEXT NOT NULL,
+	title TEXT NOT NULL,
+	disc_tag TEXT,
+	mp3_rel TEXT,
+	cdg_rel TEXT,
+	video_rel TEXT,
+	has_lyrics INTEGER NOT NULL,
+	offset_ms INTEGER NOT NULL DEFAULT 0
+`;
+
 const SCHEMA = `
-	CREATE TABLE IF NOT EXISTS songs (
-		id INTEGER PRIMARY KEY,
-		artist TEXT NOT NULL,
-		title TEXT NOT NULL,
-		disc_tag TEXT,
-		mp3_rel TEXT,
-		cdg_rel TEXT,
-		video_rel TEXT,
-		has_lyrics INTEGER NOT NULL,
-		offset_ms INTEGER NOT NULL DEFAULT 0
-	);
+	CREATE TABLE IF NOT EXISTS songs (${SONGS_COLUMNS});
 	CREATE VIRTUAL TABLE IF NOT EXISTS songs_fts USING fts5(
 		artist, title, content='songs', content_rowid='id', tokenize='trigram'
 	);
 `;
+
+// An index built before AUTOINCREMENT is copied into a table that has it, keeping every id.
+function migrateToAutoincrement(db: Database.Database): void {
+	const table = db.prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'songs'").get() as
+		| { sql: string }
+		| undefined;
+	if (!table || table.sql.includes('AUTOINCREMENT')) return;
+	db.exec(`
+		CREATE TABLE songs_next (${SONGS_COLUMNS});
+		INSERT INTO songs_next (id, artist, title, disc_tag, mp3_rel, cdg_rel, video_rel, has_lyrics, offset_ms)
+			SELECT id, artist, title, disc_tag, mp3_rel, cdg_rel, video_rel, has_lyrics, offset_ms FROM songs;
+		DROP TABLE songs;
+		ALTER TABLE songs_next RENAME TO songs;
+	`);
+}
 
 export interface BuildIndexOptions {
 	libraryPath: string;
@@ -154,6 +173,7 @@ function listMediaPaths(root: string): string[] {
 // Rows are matched by file, so a song keeps its id across rescans: the queue, stars and
 // play log all refer to songs by id.
 function syncSongs(db: Database.Database, rows: SongRecord[]): void {
+	migrateToAutoincrement(db);
 	db.exec(SCHEMA);
 	const known = db.prepare('SELECT id, COALESCE(mp3_rel, video_rel) AS rel FROM songs').all() as {
 		id: number;
