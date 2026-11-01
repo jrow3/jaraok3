@@ -3,5 +3,3 @@
 export const ytDlpBin = () => process.env.YT_DLP || 'yt-dlp';
 export const dbPath = () => process.env.DB_PATH || 'data/index.db';
 export const controlDir = () => process.env.CONTROL_DIR || '/control';
-
-export const YOUTUBE_ID = /^[\w-]{6,20}$/;

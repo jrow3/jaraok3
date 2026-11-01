@@ -4,7 +4,8 @@ import { relative } from 'node:path';
 import { mkdirSync } from 'node:fs';
 import { fileSafe } from './downloadRename';
 import { youtubeCookieArgs } from './youtubeCookies';
-import { YOUTUBE_ID, ytDlpBin } from './env';
+import { ytDlpBin } from './env';
+import { YOUTUBE_ID } from './validate';
 
 const run = promisify(execFile);
 

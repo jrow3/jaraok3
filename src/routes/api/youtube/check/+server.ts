@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { checkEmbeddable, oembedEmbeddable } from '$lib/server/youtube';
-import { YOUTUBE_ID } from '$lib/server/env';
+import { YOUTUBE_ID } from '$lib/server/validate';
 
 // Called when a guest picks a YouTube result. A video that blocks embedding (KaraFun
 // etc.) can't play on the display, so the client downloads it up front. When

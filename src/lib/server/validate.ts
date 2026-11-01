@@ -1,7 +1,7 @@
 import type { AddInput } from '../types';
 import { isThemeId } from '../themes/themes';
-import { YOUTUBE_ID } from './env';
 
+export const YOUTUBE_ID = /^[\w-]{6,20}$/;
 const SOURCES = new Set(['local', 'youtube', 'local-video']);
 // The shape ownerTagFor gives.
 const OWNER_TAG_RE = /^[0-9a-f]{16}$/;
