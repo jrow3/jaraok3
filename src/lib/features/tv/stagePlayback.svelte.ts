@@ -1,4 +1,4 @@
-import type { Party, PartyActionError } from '$lib/party.svelte';
+import { PartyActionError, type Party } from '$lib/party.svelte';
 import type { QueueItem } from '$lib/types';
 import { FAILURE_CARD_MS, hasStalled, isEmbedBlocked, noteTime, startWatch } from './playbackHealth';
 import { createReconnectGate } from './reconnectGate';
@@ -125,8 +125,8 @@ function createEndReport(party: Party) {
 	// The server refuses a stale id (another display, or the host already skipped).
 	function report(id: string) {
 		hasEnded = true;
-		party.next(id).catch((error: PartyActionError) => {
-			if (error.code === 'offline' || error.code === 'timeout') unsent = id;
+		party.next(id).catch((error: unknown) => {
+			if (error instanceof PartyActionError && (error.code === 'offline' || error.code === 'timeout')) unsent = id;
 		});
 	}
 
