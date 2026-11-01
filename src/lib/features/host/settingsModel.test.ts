@@ -4,7 +4,6 @@ import {
 	orderBrands,
 	addUniqueName,
 	toggleId,
-	tierOf,
 	clampSongDelay,
 	withLibraryBrands
 } from './settingsModel';
@@ -121,13 +120,6 @@ describe('toggleId', () => {
 	test('adds a missing id and removes a present one', () => {
 		expect(toggleId([1, 2], 3)).toEqual([1, 2, 3]);
 		expect(toggleId([1, 2], 1)).toEqual([2]);
-	});
-});
-
-describe('tierOf', () => {
-	test('an unrated brand counts as yellow', () => {
-		expect(tierOf({ SC: 'green' }, 'SC')).toBe('green');
-		expect(tierOf({ SC: 'green' }, 'XX')).toBe('yellow');
 	});
 });
 

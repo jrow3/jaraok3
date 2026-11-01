@@ -1,6 +1,6 @@
 import type Database from 'better-sqlite3';
 import type { Tier } from '../types';
-import { tierOf } from '../features/host/settingsModel';
+import { tierOf } from '../tiers';
 
 export interface SongRow {
 	id: number;

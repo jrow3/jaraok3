@@ -1,9 +1,9 @@
 import { SESSION_ENDED } from '$lib/messages';
 import { DEFAULT_TV_THEME } from '$lib/themes/themes';
+import { tierOf } from '$lib/tiers';
 import { createSaver, sectionFields, sectionOf, type SaveOutcome, type SaveSection, type SaveState } from './saveStatus';
 import {
 	parseSettings,
-	tierOf,
 	toggleId,
 	withLibraryBrands,
 	type HostSettingsData,

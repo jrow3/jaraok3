@@ -85,9 +85,6 @@ export function toggleId(list: number[], id: number): number[] {
 	return list.includes(id) ? list.filter((existing) => existing !== id) : [...list, id];
 }
 
-// A brand without a rating ranks as yellow, here and in the server's search.
-export const tierOf = (tiers: Record<string, Tier>, tag: string): Tier => tiers[tag] ?? 'yellow';
-
 export const MAX_SONG_DELAY_SEC = 30;
 
 // The TV's "Up next" hold before each song: a party can't wait more than half a
