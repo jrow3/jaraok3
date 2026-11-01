@@ -68,7 +68,7 @@ export interface Features {
 
 export type AckResult<T = unknown> =
 	| { ok: true; data: T }
-	| { ok: false; error: 'forbidden' | 'stale' | 'invalid' | 'failed' | 'disabled' };
+	| { ok: false; error: 'forbidden' | 'stale' | 'invalid' | 'full' | 'failed' | 'disabled' };
 
 /** The host settings any phone may read, through GET /api/party-settings. */
 export interface PartySettings {

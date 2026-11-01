@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { Party, PartyActionError } from '$lib/party.svelte';
+	import type { Party } from '$lib/party.svelte';
 	import type { QueueItem } from '$lib/types';
 	import { toast } from '$lib/toast.svelte';
-	import { CANT_PLAY_HERE, COULD_NOT_ADD } from '$lib/messages';
+	import { addFailedMessage } from '$lib/messages';
 	import Button from '$lib/components/ui/Button.svelte';
 	import SectionHeader from '$lib/components/ui/SectionHeader.svelte';
 	import Tag from '$lib/components/ui/Tag.svelte';
@@ -68,8 +68,7 @@
 		try {
 			item = await adds.run(videoAddKey(video.ytId), () => addVideo(video));
 		} catch (error) {
-			// "disabled": it blocks embedding and this install doesn't download (DOWNLOADS=off).
-			toast((error as PartyActionError).code === 'disabled' ? CANT_PLAY_HERE : COULD_NOT_ADD, { kind: 'err' });
+			toast(addFailedMessage(error), { kind: 'err' });
 			return;
 		}
 		if (item) onadded(item);

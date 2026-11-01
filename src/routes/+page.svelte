@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import { connectParty, type PartyActionError } from '$lib/party.svelte';
 	import { toast } from '$lib/toast.svelte';
-	import { COULD_NOT_ADD, COULD_NOT_DO, COULD_NOT_REMOVE, COULD_NOT_RENAME } from '$lib/messages';
+	import { addFailedMessage, COULD_NOT_DO, COULD_NOT_REMOVE, COULD_NOT_RENAME } from '$lib/messages';
 	import Chip from '$lib/components/ui/Chip.svelte';
 	import ConnectionStrip from '$lib/components/ui/ConnectionStrip.svelte';
 	import Toasts from '$lib/components/ui/Toasts.svelte';
@@ -97,8 +97,8 @@
 		let item: QueueItem | null;
 		try {
 			item = await adds.run(songAddKey(song.id), () => party.add(libraryInput(song, singer)));
-		} catch {
-			toast(COULD_NOT_ADD, { kind: 'err' });
+		} catch (error) {
+			toast(addFailedMessage(error), { kind: 'err' });
 			return null;
 		}
 		if (!item) return null;

@@ -48,7 +48,8 @@ export class PartyState {
 
 	constructor(private readonly timing: PartyTiming = {}) {}
 
-	// Far past any real party; it stops a script from queueing without end.
+	// Far past any real party; it stops a script from queueing without end. Only adds check
+	// it: requeue and undo are host-only, and trusted to go past it.
 	get isFull(): boolean {
 		return this.queue.length >= MAX_QUEUE;
 	}
