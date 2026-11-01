@@ -36,7 +36,8 @@ sudo systemctl enable --now karaoke-kiosk-watch      # watcher runs always
 # karaoke-kiosk is NOT enabled — the watcher starts it on demand.
 ```
 
-Before `enable`: set `DISPLAY_TOKEN` in `karaoke-kiosk.service` to the one in `.env`, and if
+Before `enable`: set `DISPLAY_TOKEN` in `karaoke-kiosk.service` to the one in `.env` (letters and
+digits only, such as `openssl rand -hex 16`: it goes into the TV's URL unescaped), and if
 the app isn't on host port 3000, set `KARAOKE_PORT` to match too. After editing a unit, `sudo systemctl daemon-reload`.
 
 After deploying a change to the TV page, a kiosk Chromium can keep showing the old

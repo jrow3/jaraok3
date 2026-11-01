@@ -22,7 +22,7 @@ UtmpMode=user
 Environment=XDG_SESSION_TYPE=wayland
 # The app's host port: KARAOKE_PORT in the app's .env (3000 unless you changed it).
 Environment=KARAOKE_PORT=3000
-# DISPLAY_TOKEN from the app's .env.
+# DISPLAY_TOKEN from the app's .env. Letters and digits only: it goes into the URL as is.
 Environment=DISPLAY_TOKEN=
 # cage = single-app Wayland kiosk compositor. Chromium's binary is `chromium` on
 # Debian; use `chromium-browser`, or /snap/bin/chromium on Ubuntu, if that's what your
