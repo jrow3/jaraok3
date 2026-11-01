@@ -216,9 +216,11 @@ export function buildIndex({ libraryPath, dbPath }: BuildIndexOptions): IndexSta
 	try {
 		db.pragma('journal_mode = WAL');
 		// One transaction, now that the app keeps running during a rescan: its searches
-		// read the old index until the new one is complete, never empty tables.
+		// read the old index until the new one is complete, never empty tables. Immediate,
+		// because it reads before it writes: a deferred one would fail with SQLITE_BUSY if the
+		// app wrote in between, where taking the write lock first waits out the busy timeout.
 		const rebuild = db.transaction((rows: SongRecord[]) => syncSongs(db, rows));
-		rebuild(records);
+		rebuild.immediate(records);
 	} finally {
 		db.close();
 	}
