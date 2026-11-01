@@ -2,9 +2,13 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import { resolve } from 'node:path';
 import type { IndexStats } from './library';
 
-// From the working directory: the server, the dev server and the tests all run from
-// the project root, and the production image copies src/ next to server.js.
-const JOB = resolve('src/lib/server/reindexJob.ts');
+// From the working directory: the server, the dev server and the tests all run from the
+// project root. Running from source (this module is still .ts) runs the job's source too;
+// a build runs the job `npm run build` bundled, whatever NODE_ENV says.
+const isFromSource = import.meta.url.endsWith('.ts');
+const JOB = isFromSource
+	? ['--import', 'tsx', resolve('src/lib/server/reindexJob.ts')]
+	: [resolve('build/node/reindexJob.js')];
 
 // A full rescan of even a ~100k-song library is normally well under this. A scan stuck on
 // a slow or unplugged drive would otherwise hold every later rescan behind it.
@@ -14,12 +18,12 @@ let running: Promise<IndexStats> | null = null;
 
 // A second tap while a scan runs joins it instead of reading the drive twice.
 export function rescan(libraryPath: string, dbPath: string): Promise<IndexStats> {
-	running ??= runJob(['--import', 'tsx', JOB, libraryPath, dbPath]).finally(() => (running = null));
+	running ??= runJob([...JOB, libraryPath, dbPath]).finally(() => (running = null));
 	return running;
 }
 
 // A full scan and rebuild is seconds of synchronous work. In the server's process it
-// froze the socket and the media the TV was streaming (B6). spawn with an argument
+// froze the socket and the media the TV was streaming. spawn with an argument
 // list, no shell, so a path is never parsed as a command. Takes Node's arguments, the
 // limit and the way to stop the child so the tests can stand in a job that misbehaves.
 export function runJob(

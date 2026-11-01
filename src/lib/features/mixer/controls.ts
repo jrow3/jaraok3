@@ -5,7 +5,7 @@ import { snap } from '../../components/ui/sliderMath';
 // Defaults are a hand-tuned starting point for wireless vocal mics into a line in, the
 // same values mic-fx.conf.template boots with.
 
-export type ControlGroup = 'input' | 'eq' | 'gate' | 'comp' | 'echo' | 'reverb' | 'output';
+type ControlGroup = 'input' | 'eq' | 'gate' | 'comp' | 'echo' | 'reverb' | 'output';
 
 export interface ControlSpec {
 	group: ControlGroup;

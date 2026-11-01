@@ -1,4 +1,4 @@
-/* Swiss (brand direction 03): paper, ink and one red, on a strict grid. Square corners,
+/* Swiss: paper, ink and one red, on a strict grid. Square corners,
    hard rules, and motion that cuts in steps instead of gliding. */
 
 @font-face {
@@ -82,8 +82,6 @@
 	--wm-j: linear-gradient(#ff2e1f, #ff2e1f);
 	--wm-3: linear-gradient(#ff2e1f, #ff2e1f);
 	--wm-tile: none;
-	/* Plex Mono is wide: at 0.2em "Scan to sing" wrapped under the rail's code. */
-	--label-tracking: 0.1em;
 
 	--r-xs: 0;
 	--r-sm: 0;
@@ -109,8 +107,6 @@
 	--chip-icon: var(--accent);
 	--surface-now: linear-gradient(#ffffff, #ffffff);
 	--brand-gradient: linear-gradient(#d01a0c, #d01a0c);
-	--warn-gradient: linear-gradient(#8a5300, #8a5300);
-	--bad-gradient: linear-gradient(#b3140a, #b3140a);
 	--card-edge: 1px solid #111111;
 	--card-edge-strong: 4px solid #111111;
 	--shadow-card: none;
@@ -125,7 +121,6 @@
 	--tv-radius-sm: 0;
 	--tv-glass: rgba(255, 255, 255, 0.94);
 	--tv-glass-line: #111111;
-	--tv-glass-quiet: rgba(255, 255, 255, 0.86);
 	--tv-scrim: rgba(243, 241, 236, 0.8);
 	--tv-qr-plate: #ffffff;
 	--tv-stage-bg: #f3f1ec;

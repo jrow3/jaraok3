@@ -12,8 +12,9 @@ Admin "System on/off" button → control/display flag → watcher → karaoke-ki
 ```
 
 Assumes Debian/Ubuntu and the karaoke repo cloned at `/opt/karaoke`. Cloned somewhere
-else? Change `KARAOKE_HOME` in `karaoke-kiosk-watch.service` and the paths below. Run
-these on the server.
+else? Change `KARAOKE_HOME` in `karaoke-kiosk-watch.service` and the paths below. Using
+the mixer too? Its agent (`deploy/audio`) assumes `~/karaoke`: point both at the one clone
+that holds `docker-compose.yml`, since both read its `control/` folder. Run these on the server.
 
 ## 1. Packages + a kiosk user
 
@@ -35,8 +36,9 @@ sudo systemctl enable --now karaoke-kiosk-watch      # watcher runs always
 # karaoke-kiosk is NOT enabled — the watcher starts it on demand.
 ```
 
-Before `enable`: if the app isn't on host port 3000, set `KARAOKE_PORT` in
-`karaoke-kiosk.service` to match `.env`. After editing a unit, `sudo systemctl daemon-reload`.
+Before `enable`: set `DISPLAY_TOKEN` in `karaoke-kiosk.service` to the one in `.env` (letters and
+digits only, such as `openssl rand -hex 16`: it goes into the TV's URL unescaped), and if
+the app isn't on host port 3000, set `KARAOKE_PORT` to match too. After editing a unit, `sudo systemctl daemon-reload`.
 
 After deploying a change to the TV page, a kiosk Chromium can keep showing the old
 page from its cache. Clear it and restart the kiosk (for snap Chromium the cache is
@@ -83,7 +85,7 @@ interface from `deploy/audio/audio.env` and tuned live from the host's Sound tab
 ## 4. Test
 
 Set `ADMIN_PIN` in the `.env` next to `docker-compose.yml`, then
-`docker compose up -d --build`. In Admin, press **System off** in the header so it
+`docker compose up -d`. In Admin, press **System off** in the header so it
 reads **System on**: the TV should light up with the Display within ~1-2 s and go dark when
 turned back off. `journalctl -u karaoke-kiosk -f` shows kiosk logs.
 

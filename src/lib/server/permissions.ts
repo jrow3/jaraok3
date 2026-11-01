@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, timingSafeEqual } from 'node:crypto';
 
 export type PartyAction =
 	| 'add'
@@ -50,6 +50,21 @@ export function mayDo(action: PartyAction, caller: Caller, item?: { owner?: stri
 	}
 }
 
+const ROLES = new Set<Caller['role']>(['display', 'control', 'guest']);
+
+// The TV reports songs ended and failed, so a phone that only asks to be the display
+// stays a guest unless it shows the display token (or the host's cookie). With no token
+// configured the role is taken on trust, as it always was.
+export function grantedRole(
+	requested: string,
+	isHost: boolean,
+	token: { configured?: string; sent?: unknown }
+): Caller['role'] {
+	const role = ROLES.has(requested as Caller['role']) ? (requested as Caller['role']) : 'guest';
+	if (role !== 'display' || isHost || !token.configured) return role;
+	return typeof token.sent === 'string' && safeEqual(token.sent, token.configured) ? 'display' : 'guest';
+}
+
 export function cookieValue(header: string | undefined, name: string): string | undefined {
 	for (const part of (header ?? '').split(';')) {
 		const [key, ...rest] = part.trim().split('=');
@@ -68,4 +83,10 @@ export function cookieValue(header: string | undefined, name: string): string | 
 // id, so seeing the queue never lets anyone act as someone else.
 export function ownerTagFor(clientId: string): string {
 	return createHash('sha256').update(clientId).digest('hex').slice(0, 16);
+}
+
+function safeEqual(a: string, b: string): boolean {
+	const ab = Buffer.from(a);
+	const bb = Buffer.from(b);
+	return ab.length === bb.length && timingSafeEqual(ab, bb);
 }

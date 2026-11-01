@@ -11,7 +11,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-RUN npm run build
+RUN npm run build && npm prune --omit=dev
 
 # --- yt-dlp standalone binary (keyless YouTube search), one stage per architecture ---
 # ADD checks a remote URL on every build and reuses the layer only when the file is
@@ -40,8 +40,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 WORKDIR /app
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/build ./build
-COPY --from=build /app/src ./src
-COPY --from=build /app/server.js /app/package.json ./
+COPY --from=build /app/package.json ./
 # Last, so a new yt-dlp release doesn't rebuild the app layers above it.
 COPY --from=ytdlp /yt-dlp /usr/local/bin/yt-dlp
 ENV NODE_ENV=production \
@@ -49,4 +48,4 @@ ENV NODE_ENV=production \
 	DB_PATH=/data/index.db \
 	YT_DLP=/usr/local/bin/yt-dlp
 EXPOSE 3000
-CMD ["npx", "tsx", "server.js"]
+CMD ["node", "build/node/server.js"]

@@ -28,7 +28,7 @@
 	<BrandList {settings} />
 	{#if page.data.features.isYoutubeOn}
 	<ChannelList {settings} />
-	<!-- Rarely needed now that unembeddable videos download on their own (X1). -->
+	<!-- Rarely needed now that unembeddable videos download on their own. -->
 	<details class="advanced">
 		<summary>Advanced<span class="chevron"><Icon name="chev-down" size={14} /></span></summary>
 		<div class="advanced-body">

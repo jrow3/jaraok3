@@ -15,7 +15,6 @@
 		note,
 		size = 'md',
 		hasAddIcon = false,
-		disabled = false,
 		phase,
 		onclick,
 		tags
@@ -31,8 +30,7 @@
 		note?: string;
 		size?: 'md' | 'sm';
 		hasAddIcon?: boolean;
-		disabled?: boolean;
-		/** 'adding' while this row's add is in flight, 'added' briefly once it lands (F2). */
+		/** 'adding' while this row's add is in flight, 'added' briefly once it lands. */
 		phase?: AddPhase;
 		onclick: () => void;
 		tags?: Snippet;
@@ -42,7 +40,6 @@
 <button
 	type="button"
 	class={['song-row', size, isSelected && 'is-selected']}
-	{disabled}
 	aria-busy={phase === 'adding' || undefined}
 	{onclick}
 >
@@ -89,13 +86,10 @@
 		gap: var(--sp-2);
 	}
 	@media (hover: hover) {
-		.song-row:not(:disabled):hover {
+		.song-row:hover {
 			background: var(--s2);
 			border-color: var(--line);
 		}
-	}
-	.song-row:disabled {
-		opacity: 0.55;
 	}
 	.is-selected {
 		border-color: var(--accent-a55);

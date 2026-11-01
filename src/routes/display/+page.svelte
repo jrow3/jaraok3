@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
+	import { page } from '$app/state';
 	import type { PageProps } from './$types';
 	import { connectParty } from '$lib/party.svelte';
 	import { createJustAddedNotice } from '$lib/features/tv/justAddedNotice.svelte';
@@ -13,7 +14,7 @@
 	let { data }: PageProps = $props();
 
 	// Only the first value: the socket keeps the choices current after that.
-	const party = connectParty('display', untrack(() => data.display));
+	const party = connectParty('display', untrack(() => data.display), page.url.searchParams.get('t') ?? undefined);
 	const justAdded = createJustAddedNotice(party);
 	const movedAhead = createMovedAheadNotice(party);
 
@@ -24,6 +25,10 @@
 </script>
 
 <main>
+	<!-- Without this, a TV missing its token looks fine but never moves on from a finished song. -->
+	{#if party.grantedRole && party.grantedRole !== 'display'}
+		<p class="not-tv" role="alert">This screen isn't signed in as the TV. Check DISPLAY_TOKEN in the kiosk URL.</p>
+	{/if}
 	<!-- No start click: a browser that refuses to play sound gets the stage's own tap to start. -->
 	{#if party.state.hold}
 		<HoldFrame next={party.state.hold.next} join={data.join} />
@@ -47,5 +52,18 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+	}
+	.not-tv {
+		position: fixed;
+		top: 1rem;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 10;
+		margin: 0;
+		padding: 0.75rem 1.25rem;
+		border-radius: 0.75rem;
+		background: var(--bad);
+		color: var(--bad-ink);
+		font: 600 1.25rem var(--font-ui);
 	}
 </style>

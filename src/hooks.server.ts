@@ -21,15 +21,21 @@ const isUnder = (path: string, prefixes: string[]) => prefixes.some((p) => path 
 if (!env.ADMIN_PIN) {
 	console.warn('[karaoke] ADMIN_PIN is not set — the admin page and its actions are UNPROTECTED.');
 }
+if (!env.DISPLAY_TOKEN) {
+	console.warn('[karaoke] DISPLAY_TOKEN is not set — any phone can claim to be the TV and skip songs.');
+}
 logYoutubeCookies();
 
 export const handle: Handle = async ({ event, resolve }) => {
 	const pin = env.ADMIN_PIN ?? '';
-	const path = event.url.pathname;
-	if (pin && isUnder(path, GUARDED) && !verifyToken(event.cookies.get(COOKIE_NAME), pin)) {
+	// The route id, not the raw pathname: routing decodes the path, so /api/%73ettings
+	// would reach /api/settings while slipping past a check on the encoded string. A route
+	// id keeps its (group) folders, so a guarded route moved into one must be listed with it.
+	const route = event.route.id ?? '';
+	if (pin && isUnder(route, GUARDED) && !verifyToken(event.cookies.get(COOKIE_NAME), pin)) {
 		return json({ error: 'unauthorized' }, { status: 401 });
 	}
-	if (isUnder(path, YOUTUBE_ROUTES) && !readFeatures().isYoutubeOn) {
+	if (isUnder(route, YOUTUBE_ROUTES) && !readFeatures().isYoutubeOn) {
 		return json({ error: 'disabled' }, { status: 404 });
 	}
 	const isTv = event.url.pathname === '/display';

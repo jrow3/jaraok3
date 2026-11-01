@@ -1,5 +1,5 @@
 // Search-as-you-type. It waits for a pause in typing, and only the newest request
-// may write results, so a slow earlier response can't replace a newer one (B13).
+// may write results, so a slow earlier response can't replace a newer one.
 const MIN_QUERY_LENGTH = 2;
 export const TYPING_PAUSE_MS = 180;
 

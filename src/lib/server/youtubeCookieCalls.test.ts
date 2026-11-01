@@ -3,8 +3,6 @@ import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-vi.mock('$env/dynamic/private', () => ({ env: {} }));
-
 const calls = vi.hoisted(() => [] as string[][]);
 vi.mock('node:child_process', () => ({
 	execFile: (_bin: string, args: string[], _options: unknown, done: (e: Error | null, out?: { stdout: string; stderr: string }) => void) => {

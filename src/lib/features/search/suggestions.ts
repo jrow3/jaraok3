@@ -14,7 +14,7 @@ export interface SuggestRequest {
 	excludeKeys: string[];
 }
 
-const MAX_SEEDS = 20;
+export const MAX_SEEDS = 20;
 
 const seedKey = (song: { artist: string; title: string }) => `${song.artist}\n${song.title}`.toLowerCase();
 const isItem = (item: QueueItem | null): item is QueueItem => item !== null;

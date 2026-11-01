@@ -4,6 +4,8 @@ import { relative } from 'node:path';
 import { mkdirSync } from 'node:fs';
 import { fileSafe } from './downloadRename';
 import { youtubeCookieArgs } from './youtubeCookies';
+import { ytDlpBin } from './env';
+import { YOUTUBE_ID } from './validate';
 
 const run = promisify(execFile);
 
@@ -27,16 +29,15 @@ export function outputTemplate(name: SongName): string {
 // Merged with faststart on fast disk (TEMP_DIR), then moved to DOWNLOADS_DIR.
 // Throws on any yt-dlp failure (unavailable/geo-blocked/etc). No shell (execFile).
 export async function downloadVideo(ytId: string, name: SongName): Promise<string> {
-	if (!/^[\w-]{6,20}$/.test(ytId)) throw new Error(`bad video id: ${ytId}`);
+	if (!YOUTUBE_ID.test(ytId)) throw new Error(`bad video id: ${ytId}`);
 	const env = process.env;
-	const bin = env.YT_DLP || 'yt-dlp';
 	const downloadsDir = env.DOWNLOADS_DIR || '/library/downloads';
 	const tempDir = env.TEMP_DIR || '/data/tmp';
 	const libraryPath = env.LIBRARY_PATH || '/library';
 	mkdirSync(tempDir, { recursive: true });
 
 	const { stdout } = await run(
-		bin,
+		ytDlpBin(),
 		[
 			'-f', FORMAT,
 			'--merge-output-format', 'mp4',
@@ -55,5 +56,6 @@ export async function downloadVideo(ytId: string, name: SongName): Promise<strin
 
 	const filepath = stdout.trim().split('\n').filter(Boolean).pop()?.trim();
 	if (!filepath) throw new Error('download produced no file');
-	return relative(libraryPath, filepath);
+	// Stored with '/', as the indexer stores it, or a rescan on Windows loses the match.
+	return relative(libraryPath, filepath).replaceAll('\\', '/');
 }

@@ -15,7 +15,7 @@
 	}: { party: Party; settings: HostSettings; ontogglestar: (songId: number) => void } = $props();
 
 	let current = $derived(party.state.current);
-	// Between songs the next one waits while the TV shows who's up (B5).
+	// Between songs the next one waits while the TV shows who's up.
 	let isHolding = $derived(party.state.hold !== null);
 
 	function next() {
@@ -47,7 +47,7 @@
 					{#if isHolding}
 						Up next
 					{:else}
-						<!-- Still bars and "Paused", so a paused song never looks like a hang (F5). -->
+						<!-- Still bars and "Paused", so a paused song never looks like a hang. -->
 						<span class={['eq', !party.state.isPlaying && 'is-still']}><i></i><i></i><i></i></span>
 						{party.state.isPlaying ? 'Now singing' : 'Paused'}
 					{/if}

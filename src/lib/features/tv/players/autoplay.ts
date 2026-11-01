@@ -1,5 +1,5 @@
 // play() also rejects for a broken file, but the media element's error event reports that
-// one (B12), and a pause during loading rejects too; only a refused autoplay needs a tap.
+// one, and a pause during loading rejects too; only a refused autoplay needs a tap.
 export async function startMedia(media: Pick<HTMLMediaElement, 'play'>, onblocked: () => void): Promise<void> {
 	try {
 		await media.play();

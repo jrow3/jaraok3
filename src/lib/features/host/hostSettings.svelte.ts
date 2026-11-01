@@ -1,9 +1,9 @@
 import { SESSION_ENDED } from '$lib/messages';
 import { DEFAULT_TV_THEME } from '$lib/themes/themes';
+import { tierOf } from '$lib/tiers';
 import { createSaver, sectionFields, sectionOf, type SaveOutcome, type SaveSection, type SaveState } from './saveStatus';
 import {
 	parseSettings,
-	tierOf,
 	toggleId,
 	withLibraryBrands,
 	type HostSettingsData,
@@ -69,7 +69,7 @@ export function createHostSettings() {
 		data = withLibraryBrands(data, brands);
 	}
 	// The host cookie lasts 30 days; after that every save answers 401, so ask for the
-	// PIN again instead of dropping changes quietly (B14).
+	// PIN again instead of dropping changes quietly.
 	const expire = (lockMessage = SESSION_ENDED) => Object.assign(session, { isAuthed: false, lockMessage });
 	// The screen shows the new value at once; the section heading says whether it stuck.
 	// Sends the whole section, so a newer success can't hide an earlier failed field of it.

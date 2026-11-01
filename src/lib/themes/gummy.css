@@ -1,4 +1,4 @@
-/* Gummy Candy (brand direction 10): sugar cream, bubblegum, tangerine and mint. Soft bean
+/* Gummy Candy: sugar cream, bubblegum, tangerine and mint. Soft bean
    corners, candy-shell edges, and presses that squish, then spring back. */
 
 @font-face {
@@ -112,7 +112,6 @@
 	/* Licorice letters (--on-brand) read on bubblegum where white can't; the deep rim is lifted
 	   from #d6327a so they read there too. */
 	--brand-gradient: radial-gradient(130% 100% at 32% 18%, #ff9cc5 0%, #ff5fa2 42%, #dd5490 100%);
-	--warn-gradient: radial-gradient(130% 100% at 32% 18%, #ffe27e 0%, #ffd23f 42%, #c99a00 100%);
 	--card-edge: 2px solid #f1dccb;
 	--card-edge-strong: 3px solid #34d39e;
 	--shadow-card: 0 4px 0 #f1dccb, 0 14px 22px -16px rgba(122, 40, 80, 0.35);
@@ -123,7 +122,6 @@
 	--tv-radius: 2.4vh;
 	--tv-glass: rgba(255, 255, 255, 0.94);
 	--tv-glass-line: #ff5fa2;
-	--tv-glass-quiet: rgba(255, 255, 255, 0.84);
 	--tv-scrim: rgba(255, 244, 234, 0.8);
 	--tv-qr-plate: #ffffff;
 	--tv-stage-bg: #fff4ea;

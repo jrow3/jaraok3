@@ -8,7 +8,9 @@ import { suggestSongs, type Seed } from '$lib/server/suggest';
 // since the personal seed differs per phone). Returns SearchResults the guest/admin
 // pages render directly, so a tap is an instant local add.
 export const POST: RequestHandler = async ({ request }) => {
-	const body = await request.json().catch(() => ({}));
+	// A body of `null` or a bare number parses fine but has no fields to read.
+	const parsed: unknown = await request.json().catch(() => null);
+	const body = parsed && typeof parsed === 'object' ? (parsed as Record<string, unknown>) : {};
 
 	const seed: Seed[] = Array.isArray(body.seed)
 		? body.seed

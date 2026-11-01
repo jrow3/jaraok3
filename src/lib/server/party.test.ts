@@ -25,6 +25,13 @@ describe('PartyState', () => {
 		party = new PartyState();
 	});
 
+	test('is full once 200 songs are waiting', () => {
+		for (let i = 0; i < 199; i++) party.add(local('Priya', `Song ${i}`));
+		expect(party.isFull).toBe(false);
+		party.add(local('Priya', 'Song 199'));
+		expect(party.isFull).toBe(true);
+	});
+
 	test('starts empty and not playing', () => {
 		expect(party.snapshot()).toEqual({
 			current: null,

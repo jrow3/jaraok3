@@ -1,4 +1,4 @@
-/* Tokyo Box (brand direction 01): a cream karaoke-box menu on the phone, cherry vinyl on the TV. */
+/* Tokyo Box: a cream karaoke-box menu on the phone, cherry vinyl on the TV. */
 
 @font-face {
 	font-family: 'Dela Gothic One';
@@ -124,7 +124,6 @@
 	--tag-neutral: var(--s3);
 	/* The highlight is the brand cherry #d7263d, the lightest red cream letters still read on. */
 	--brand-gradient: radial-gradient(120% 120% at 30% 20%, #d7263d, #9e1628 70%);
-	--warn-gradient: radial-gradient(120% 120% at 30% 20%, #ffd45c, #c98a00 70%);
 	--card-edge: 2.5px solid #1e1a16;
 	--card-edge-strong: 3px solid #1e1a16;
 	--shadow-card: 0 3px 0 rgba(30, 26, 22, 0.28);
@@ -159,7 +158,6 @@
 	--wm-3: linear-gradient(#ffc425, #ffc425);
 	--wm-effect: drop-shadow(0 0.055em 0 #7a1020);
 	--tv-glass: rgba(60, 0, 10, 0.66);
-	--tv-glass-quiet: rgba(60, 0, 10, 0.42);
 	--tv-dim: rgba(60, 0, 10, 0.6);
 	--tv-scrim: rgba(60, 0, 10, 0.6);
 	--tv-stage-bg: #7a1020;

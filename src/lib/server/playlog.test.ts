@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, afterEach } from 'vitest';
 import Database from 'better-sqlite3';
-import { recordPlay, trending, coPlayed, clearPlays } from './playlog';
+import { recordPlay, trending, coPlayed } from './playlog';
 
 describe('playlog', () => {
 	let db: Database.Database;
@@ -39,11 +39,5 @@ describe('playlog', () => {
 		rec(3, 'Adele', 'Hello', 's2', 3000); // different session
 		const c = coPlayed(db, ['Queen'], { limit: 10 });
 		expect(c.map((x) => x.songId)).toEqual([2]);
-	});
-
-	test('clear empties the log', () => {
-		rec(1, 'Q', 'T', 's1', 1000);
-		clearPlays(db);
-		expect(trending(db, { days: 3650 }, 2000)).toEqual([]);
 	});
 });

@@ -45,6 +45,8 @@
 		font-size: var(--fs-md);
 		font-weight: 600;
 		box-shadow: var(--shadow-stage);
+		/* iOS Safari before 18 knows only the prefixed name. */
+		-webkit-backdrop-filter: blur(8px);
 		backdrop-filter: blur(8px);
 		animation: toast-in var(--t-slow) var(--ease);
 		max-width: 100%;

@@ -5,7 +5,7 @@ import { createReconnectGate } from './reconnectGate';
 
 export const MOVED_AHEAD_MS = 8000;
 
-// Tells the room when a song jumps ahead of a download that isn't ready (F6).
+// Tells the room when a song jumps ahead of a download that isn't ready.
 export function createMovedAheadNotice(party: Party) {
 	let note = $state<MovedAheadNote | null>(null);
 	let noteSongId: string | null = null;

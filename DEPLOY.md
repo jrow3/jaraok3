@@ -49,15 +49,15 @@ docker compose logs -f karaoke     # the first boot scans the library once ("Ind
 to the code instead, build the image here: `docker compose up -d --build`.
 
 The index persists in the `karaoke-data` volume, so later restarts are instant. Open
-`http://<server-ip>:3000/display` on the TV and `http://<server-ip>:3000` on a phone.
+`http://<server-ip>:3000/display?t=<DISPLAY_TOKEN>` on the TV and `http://<server-ip>:3000` on a phone.
 
 If your library sits on a slow USB drive formatted exFAT and the first scan seems to
 stall, set `LIBRARY_RECURSIVE=off`: it then scans only the top folder and `downloads/`.
 
 ## 3. The three pages
 
-- **TV** (`/display`): open it full screen on the TV. If the browser blocks sound, it
-  shows a tap to start.
+- **TV** (`/display?t=<DISPLAY_TOKEN>`): open it full screen on the TV. If the browser
+  blocks sound, it shows a tap to start. The token is what lets it skip and fail songs.
 - **Guests** (`/`): search, add songs, see the lineup. Put the address on the TV's QR code
   (`JOIN_URL`) or print it.
 - **Host** (`/admin`): playback, the lineup, party and TV settings, the library.
@@ -85,9 +85,11 @@ git pull                                   # the compose file, docs and deploy/ 
 docker compose pull && docker compose up -d
 ```
 
-With a pinned `JARAOK3_VERSION`, change it to the new release first. After adding songs to the library: **Host → Library → Rescan library** (or restart the
-container). If the TV is a kiosk, its browser may keep the old TV page cached after an
-update; see `deploy/kiosk/README.md`.
+With a pinned `JARAOK3_VERSION`, change it to the new release first. If the TV is a kiosk,
+its browser may keep the old TV page cached after an update; see `deploy/kiosk/README.md`.
+
+After adding songs to the library: **Host → Library → Rescan library** (or restart the
+container).
 
 The image ships the yt-dlp current at its release, and YouTube changes often. Between
 releases: **Host → Library → Advanced → YouTube downloader → Check for

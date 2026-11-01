@@ -23,7 +23,7 @@
 		note?: string;
 		size?: 'md' | 'sm';
 		hasAddIcon?: boolean;
-		/** Guests see each version's company and plain quality notes; the host also sees brand tiers (H2). */
+		/** Guests see each version's company and plain quality notes; the host also sees brand tiers. */
 		audience?: 'host' | 'guest';
 		phases?: Record<string, AddPhase>;
 		isExpanded: boolean;

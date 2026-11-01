@@ -1,9 +1,9 @@
 import type { QueueItem } from '$lib/types';
 
-// A local file starts in well under a second; one that shows no progress this long is stuck (B12).
+// A local file starts in well under a second; one that shows no progress this long is stuck.
 export const STALL_LIMIT_MS = 10_000;
 
-// Long enough to read the card, short enough that the room isn't left waiting (F8).
+// Long enough to read the card, short enough that the room isn't left waiting.
 export const FAILURE_CARD_MS = 3000;
 
 export interface PlaybackWatch {

@@ -1,4 +1,4 @@
-import type { Party, PartyActionError } from '$lib/party.svelte';
+import { PartyActionError, type Party } from '$lib/party.svelte';
 import type { QueueItem } from '$lib/types';
 import { FAILURE_CARD_MS, hasStalled, isEmbedBlocked, noteTime, startWatch } from './playbackHealth';
 import { createReconnectGate } from './reconnectGate';
@@ -17,7 +17,8 @@ export function createStagePlayback(getParty: () => Party) {
 	// Primitives, so a snapshot that changes something else doesn't reset the song.
 	const playKey = $derived(party.state.playKey);
 	const failure = createFailureReport(party);
-	const stall = createStallWatch(party, failure.fail, () => isBlocked || !!failure.shown);
+	const end = createEndReport(party);
+	const stall = createStallWatch(party, failure.fail, () => isBlocked || !!failure.shown || end.hasEnded);
 	let progress = $state({ time: 0, duration: 0 });
 	let isBlocked = $state(false);
 	let retries = $state(0);
@@ -26,6 +27,7 @@ export function createStagePlayback(getParty: () => Party) {
 	$effect(() => {
 		void playKey;
 		failure.clear();
+		end.clear();
 		progress = { time: 0, duration: 0 };
 		reportedAt = Number.NEGATIVE_INFINITY;
 		isBlocked = false;
@@ -41,9 +43,6 @@ export function createStagePlayback(getParty: () => Party) {
 			party.progress(id, time, duration);
 		}
 	}
-
-	// The server ignores a stale id (another display, or the host already skipped).
-	const ended = (id: string) => party.next(id).catch(() => {});
 
 	function block() {
 		isBlocked = true;
@@ -70,14 +69,14 @@ export function createStagePlayback(getParty: () => Party) {
 			return `${playKey}:${retries}`;
 		},
 		ontime,
-		ended,
+		ended: end.report,
 		fail: failure.fail,
 		block,
 		retry
 	};
 }
 
-// A local song that should be playing but whose time hasn't moved is stuck (B12).
+// A local song that should be playing but whose time hasn't moved is stuck.
 function createStallWatch(party: Party, onstall: (item: QueueItem) => void, isExcused: () => boolean) {
 	const isPlaying = $derived(party.state.isPlaying);
 	let watch = startWatch(Date.now());
@@ -105,6 +104,40 @@ function createStallWatch(party: Party, onstall: (item: QueueItem) => void, isEx
 		},
 		restart() {
 			watch = startWatch(Date.now());
+		}
+	};
+}
+
+// The song played to its end. A report lost to a dropout goes again once reconnected,
+// or the party would sit on a finished song (and the stall watch would call it failed).
+function createEndReport(party: Party) {
+	let unsent = $state<string | null>(null);
+	let hasEnded = false;
+	const checkSnapshot = createReconnectGate<Party['state']>();
+
+	$effect(() => {
+		if (checkSnapshot(party.state, party.connected) === 'wait' || !unsent) return;
+		const id = unsent;
+		unsent = null;
+		if (party.state.current?.id === id) report(id);
+	});
+
+	// The server refuses a stale id (another display, or the host already skipped).
+	function report(id: string) {
+		hasEnded = true;
+		party.next(id).catch((error: unknown) => {
+			if (error instanceof PartyActionError && (error.code === 'offline' || error.code === 'timeout')) unsent = id;
+		});
+	}
+
+	return {
+		get hasEnded() {
+			return hasEnded;
+		},
+		report,
+		clear() {
+			hasEnded = false;
+			unsent = null;
 		}
 	};
 }

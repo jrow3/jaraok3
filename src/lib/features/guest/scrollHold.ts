@@ -1,7 +1,7 @@
 export const SCROLL_SETTLE_MS = 600;
 
 // Holds a list update until the page has stopped scrolling, so suggestions never
-// reshuffle under a thumb that is mid-scroll (L8).
+// reshuffle under a thumb that is mid-scroll.
 export function createScrollHold() {
 	let lastScrollAt = Number.NEGATIVE_INFINITY;
 	let timer: ReturnType<typeof setTimeout> | undefined;

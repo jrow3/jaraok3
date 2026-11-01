@@ -34,7 +34,7 @@ const DEFAULT_DISPLAY: DisplaySettings = {
 const withPhoneTheme = (role: Role, input: AddInput) =>
 	role === 'guest' ? { ...input, theme: document.documentElement.dataset.theme } : input;
 
-export type PartyErrorCode = 'offline' | 'timeout' | 'forbidden' | 'stale' | 'invalid' | 'failed' | 'disabled';
+type PartyErrorCode = 'offline' | 'timeout' | 'forbidden' | 'stale' | 'invalid' | 'full' | 'failed' | 'disabled';
 export class PartyActionError extends Error {
 	constructor(readonly code: PartyErrorCode) {
 		super(code);
@@ -62,28 +62,31 @@ function clientId(): string {
 // reactive state. Actions return promises that reject (PartyActionError) instead of
 // being buffered while offline, so a tap made during a dropout never replays later.
 // Safe to call during SSR (the socket only opens in the browser). A TV passes the display
-// choices its page loaded with, so it never shows the defaults while the socket connects.
-export function connectParty(role: Role, initialDisplay: DisplaySettings = DEFAULT_DISPLAY) {
+// choices its page loaded with, so it never shows the defaults while the socket connects,
+// and the display token from its URL, which lets it act as the TV.
+export function connectParty(role: Role, initialDisplay: DisplaySettings = DEFAULT_DISPLAY, displayToken?: string) {
 	let state = $state<PartySnapshot>(EMPTY);
 	let connected = $state(false);
 	let received = $state(false);
 	let ownerTag = $state('');
 	let isHost = $state(false);
+	let grantedRole = $state<Role | null>(null);
 	let system = $state<SystemState | null>(null);
 	let display = $state<DisplaySettings>(initialDisplay);
 	let socket: Socket | null = null;
 
 	if (browser) {
-		socket = io({ path: '/ws', query: { role }, auth: { clientId: clientId() } });
+		socket = io({ path: '/ws', query: { role }, auth: { clientId: clientId(), displayToken } });
 		socket.on('connect', () => (connected = true));
 		socket.on('disconnect', () => {
 			connected = false;
 			// Offline, the last TV state may be stale; the server sends it again on reconnect.
 			system = null;
 		});
-		socket.on('hello', (hello: { ownerTag: string; isHost: boolean }) => {
+		socket.on('hello', (hello: { ownerTag: string; isHost: boolean; role: Role }) => {
 			ownerTag = hello.ownerTag;
 			isHost = hello.isHost;
+			grantedRole = hello.role;
 		});
 		socket.on('system', (next: SystemState) => (system = next));
 		socket.on('display-settings', (next: DisplaySettings) => (display = next));
@@ -122,6 +125,10 @@ export function connectParty(role: Role, initialDisplay: DisplaySettings = DEFAU
 		get isHost() {
 			return isHost;
 		},
+		/** The role the server granted, which can be less than asked for; null until it says. */
+		get grantedRole() {
+			return grantedRole;
+		},
 		/** The TV's power state, sent to host (`control`) pages only; null until the server says. */
 		get system() {
 			return system;
@@ -140,8 +147,10 @@ export function connectParty(role: Role, initialDisplay: DisplaySettings = DEFAU
 		reorder: (ids: string[]) => call('queue:reorder', ids),
 		/** Resolves to how the song was recorded: a host's Next near the end counts as sung. */
 		next: (currentId: string) => call<SongOutcome>('playback:next', currentId),
-		/** TV only, fire-and-forget: where the song on stage is, so the server can tell a finish from a skip. */
-		progress: (id: string, time: number, duration: number) => socket?.emit('playback:progress', { id, time, duration }),
+		/** TV only, fire-and-forget: where the song on stage is, so the server can tell a finish from a skip.
+		 * Volatile: offline, a burst of old positions would replay on reconnect. */
+		progress: (id: string, time: number, duration: number) =>
+			socket?.volatile.emit('playback:progress', { id, time, duration }),
 		/** The TV couldn't play this song: the server skips it and records it as failed. */
 		failed: (currentId: string) => call('playback:failed', currentId),
 		/** The TV couldn't embed this YouTube song: the server moves it to a download at the front of the line. */
@@ -161,8 +170,9 @@ export function connectParty(role: Role, initialDisplay: DisplaySettings = DEFAU
 		mixer: <T>(event: `mixer:${string}`, payload: unknown = null) => call<T>(event, payload),
 		/** This phone's own echo and reverb (see src/lib/server/mixer.ts). */
 		singer: <T>(event: `singer:${string}`, payload: unknown = null) => call<T>(event, payload),
-		/** Fire-and-forget, for events with no answer (the Sound tab's meter subscription). */
-		send: (event: string) => socket?.emit(event),
+		/** Fire-and-forget, for events with no answer (the Sound tab's meter subscription).
+		 * Dropped while offline: the Sound tab subscribes again on reconnect. */
+		send: (event: string) => socket?.volatile.emit(event),
 		/** Subscribes to a server event; returns the unsubscribe. */
 		listen: <T>(event: string, handler: (payload: T) => void) => {
 			socket?.on(event, handler);

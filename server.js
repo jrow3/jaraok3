@@ -2,12 +2,13 @@ import { createServer } from 'node:http';
 import { existsSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import Database from 'better-sqlite3';
-import { handler } from './build/handler.js';
+import { handler } from '#handler';
 import { attachSocket } from './src/lib/server/socket.ts';
 import { buildIndex } from './src/lib/server/library.ts';
 
-// Production entry: the built SvelteKit handler serves HTTP, Socket.io shares
-// the same server for the live queue, and the song index is built on first boot.
+// Production entry, bundled by `npm run build` into build/node/server.js: the built
+// SvelteKit handler serves HTTP, Socket.io shares the same server for the live queue,
+// and the song index is built on first boot.
 const dbPath = process.env.DB_PATH || 'data/index.db';
 const libraryPath = process.env.LIBRARY_PATH;
 const port = Number(process.env.PORT) || 3000;
@@ -34,6 +35,9 @@ if (songCount() === 0) {
 	const stats = buildIndex({ libraryPath, dbPath });
 	console.log(`Indexed ${stats.songs} songs.`);
 }
+
+// Logged, not fatal: one failed download or lookup must not end the party for everyone.
+process.on('unhandledRejection', (reason) => console.error('[karaoke] unhandled rejection:', reason));
 
 const server = createServer(handler);
 attachSocket(server);

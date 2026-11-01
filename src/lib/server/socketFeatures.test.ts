@@ -19,6 +19,7 @@ describe('features switched off in .env', () => {
 	beforeAll(async () => {
 		delete process.env.ADMIN_PIN;
 		for (const name of ['MIXER', 'KIOSK', 'DOWNLOADS']) delete process.env[name];
+		process.env.YOUTUBE = 'off';
 		process.env.DOWNLOADS_DIR = join(tmpdir(), 'karaoke-no-downloads-folder');
 		// An empty database of its own, so nothing reaches the real one. Left in the temp
 		// folder: the server keeps it open, and Windows won't delete an open file.
@@ -37,6 +38,12 @@ describe('features switched off in .env', () => {
 		host.close();
 		io.close();
 		delete process.env.DOWNLOADS_DIR;
+		delete process.env.YOUTUBE;
+	});
+
+	test('a YouTube pick answers disabled when YouTube is off', async () => {
+		const pick = { source: 'youtube', ytId: 'Sd7sMCA9H3Y', artist: 'Adele', title: 'Hello', singer: 'Priya' };
+		expect(await host.emitWithAck('queue:add', pick)).toEqual({ ok: false, error: 'disabled' });
 	});
 
 	test('the Sound tab and singer sound answer disabled', async () => {

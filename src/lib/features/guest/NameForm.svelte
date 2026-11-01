@@ -10,7 +10,7 @@
 		value?: string;
 		isFirstTime: boolean;
 		onsave: () => void;
-		/** Offered only when there is a saved name to go back to (H4). */
+		/** Offered only when there is a saved name to go back to. */
 		oncancel?: () => void;
 	} = $props();
 </script>

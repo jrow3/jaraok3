@@ -1,6 +1,6 @@
 import type { Server as HttpServer } from 'node:http';
 import type { Http2SecureServer } from 'node:http2';
-import { Server } from 'socket.io';
+import { Server, type Socket } from 'socket.io';
 import { PartyState, type QueueItem } from './party';
 import { completeDownload } from './downloads';
 import { recordPlay } from './playlog';
@@ -9,12 +9,11 @@ import { getDb } from './db';
 import { songHoldMs, getSettings, displaySettings } from './settings';
 import { onSettingsSaved } from './settingsSaved';
 import { verifyToken, COOKIE_NAME } from './auth';
-import { mayDo, cookieValue, ownerTagFor, type Caller, type PartyAction } from './permissions';
+import { mayDo, cookieValue, ownerTagFor, grantedRole, type Caller, type PartyAction } from './permissions';
 import { toAddInput, toRequeueInput, toIdList, toId, toSinger, toUndoRemoval, toProgress } from './validate';
 import { reply } from './reply';
 import { attachSystem } from './system';
 import { readFeatures } from './features';
-import { refuseAll } from './refuse';
 import { createMixer, MIXER_EVENTS } from './mixer';
 import { mixerStore } from './mixerStore';
 import { holdTimer } from './holdTimer';
@@ -25,14 +24,25 @@ let io: Server | null = null;
 // Read at every song change, because the settings API saves it from another module instance.
 const party = new PartyState({ holdMs: () => songHoldMs(getDb()) });
 
-const ROLES = new Set(['display', 'control', 'guest']);
 const currentDisplaySettings = () => displaySettings(getSettings(getDb()));
 
-function identify(socket: import('socket.io').Socket): Caller {
-	const requested = String(socket.handshake.query.role ?? 'guest');
-	const role = (ROLES.has(requested) ? requested : 'guest') as Caller['role'];
+// A feature switched off in .env still answers its events, so a page opened before the
+// switch gets a clear "disabled" instead of waiting out a timeout.
+function refuseAll(socket: Socket, events: readonly string[]): void {
+	for (const event of events) socket.on(event, (_raw: unknown, ack?: unknown) => reply(ack, { ok: false, error: 'disabled' }));
+}
+
+function identify(socket: Socket): Caller {
 	const pin = process.env.ADMIN_PIN ?? '';
 	const isHost = !pin || verifyToken(cookieValue(socket.handshake.headers.cookie, COOKIE_NAME), pin);
+	const role = grantedRole(String(socket.handshake.query.role ?? 'guest'), isHost, {
+		configured: process.env.DISPLAY_TOKEN,
+		sent: socket.handshake.auth?.displayToken
+	});
+	// A TV left on an old kiosk URL would otherwise sit on every finished song with no sign why.
+	if (socket.handshake.query.role === 'display' && role !== 'display') {
+		console.warn('[karaoke] a TV connected without a valid DISPLAY_TOKEN, so it joined as a guest');
+	}
 	const raw = socket.handshake.auth?.clientId;
 	const clientId = typeof raw === 'string' && raw.length >= 16 && raw.length <= 128 ? raw : socket.id;
 	return { role, isHost, ownerTag: ownerTagFor(clientId) };
@@ -58,8 +68,18 @@ function logAdd(item: Pick<QueueItem, 'songId' | 'artist' | 'title' | 'singer'>)
 			singer: item.singer,
 			session: currentSession()
 		});
-	} catch {
-		// logging must never disrupt playback
+	} catch (error) {
+		// Logging must never disrupt playback.
+		console.error('[karaoke] could not record a play:', error);
+	}
+}
+
+async function safely(label: string, run: () => unknown, onError?: () => void): Promise<void> {
+	try {
+		await run();
+	} catch (error) {
+		console.error(`[karaoke] ${label} failed:`, error);
+		onError?.();
 	}
 }
 
@@ -78,15 +98,17 @@ export function attachSocket(httpServer: HttpServer | Http2SecureServer): Server
 	};
 	const endHoldLater = holdTimer(party, broadcast);
 	// TVs follow the host's display choices as they're saved, without a reload.
-	onSettingsSaved(() => server.to('display').emit('display-settings', currentDisplaySettings()));
+	onSettingsSaved(() =>
+		safely('display-settings', () => server.to('display').emit('display-settings', currentDisplaySettings()))
+	);
 	const mixer = features.isMixerOn ? createMixer(server, mixerStore) : null;
 
 	io.on('connection', (socket) => {
 		const caller = identify(socket);
 		socket.join(caller.role);
-		socket.emit('hello', { ownerTag: caller.ownerTag, isHost: caller.isHost });
+		socket.emit('hello', { ownerTag: caller.ownerTag, isHost: caller.isHost, role: caller.role });
 		socket.emit('state', party.snapshot());
-		if (caller.role === 'display') socket.emit('display-settings', currentDisplaySettings());
+		if (caller.role === 'display') safely('display-settings', () => socket.emit('display-settings', currentDisplaySettings()));
 		if (features.isKioskOn) attachSystem(server, socket, caller);
 		else refuseAll(socket, ['system:power']);
 		if (mixer) mixer.attach(socket, caller);
@@ -94,25 +116,36 @@ export function attachSocket(httpServer: HttpServer | Http2SecureServer): Server
 
 		const houseSound = caller.role === 'control' && caller.isHost ? { isHouseSound: true } : {};
 
+		// A throw inside a handler (a locked database, say) answers that one call with
+		// 'failed' instead of taking the whole party down with an uncaught exception.
+		type Handler = (raw: unknown, ack?: unknown) => unknown;
+		const on = (event: string, handler: Handler) =>
+			socket.on(event, (raw: unknown, ack?: unknown) =>
+				safely(event, () => handler(raw, ack), () => reply(ack, { ok: false, error: 'failed' }))
+			);
+
 		const guard = (action: PartyAction, ack: unknown, item?: { owner?: string } | null) => {
 			if (mayDo(action, caller, item)) return true;
 			reply(ack, { ok: false, error: 'forbidden' });
 			return false;
 		};
 
-		socket.on('queue:add', (raw: unknown, ack?: unknown) => {
+		on('queue:add', (raw: unknown, ack?: unknown) => {
 			if (!guard('add', ack)) return;
 			const input = toAddInput(raw);
 			if (!input) return reply(ack, { ok: false, error: 'invalid' });
+			if (party.isFull) return reply(ack, { ok: false, error: 'full' });
+			if (input.source === 'youtube' && !features.isYoutubeOn) return reply(ack, { ok: false, error: 'disabled' });
 			const item = party.addOrStart({ ...input, ...houseSound, owner: caller.ownerTag });
 			logAdd(item);
 			broadcast();
 			reply(ack, { ok: true, data: item });
 		});
-		socket.on('queue:add-download', async (raw: unknown, ack?: unknown) => {
+		on('queue:add-download', async (raw: unknown, ack?: unknown) => {
 			if (!guard('add', ack)) return;
 			const input = toAddInput(raw);
 			if (!input || !input.ytId) return reply(ack, { ok: false, error: 'invalid' });
+			if (party.isFull) return reply(ack, { ok: false, error: 'full' });
 			// Off, earlier downloads are still in the library, and found by a local search.
 			if (!features.isDownloadsOn) return reply(ack, { ok: false, error: 'disabled' });
 			// Already pulled this exact video before? Queue the local copy instead of
@@ -146,7 +179,7 @@ export function attachSocket(httpServer: HttpServer | Http2SecureServer): Server
 			const video = await completeDownload(party, { id: item.id, ytId: input.ytId, artist: item.artist, title: item.title }, broadcast);
 			if (video) logAdd({ ...video, singer: item.singer });
 		});
-		socket.on('queue:remove', (raw: unknown, ack?: unknown) => {
+		on('queue:remove', (raw: unknown, ack?: unknown) => {
 			const id = toId(raw);
 			if (id === null) return reply(ack, { ok: false, error: 'invalid' });
 			const item = party.queued(id);
@@ -158,14 +191,14 @@ export function attachSocket(httpServer: HttpServer | Http2SecureServer): Server
 			broadcast();
 			reply(ack, { ok: true, data: undefined });
 		});
-		socket.on('queue:rename', (raw: unknown, ack?: unknown) => {
+		on('queue:rename', (raw: unknown, ack?: unknown) => {
 			const singer = toSinger(raw);
 			if (singer === null) return reply(ack, { ok: false, error: 'invalid' });
 			const renamed = party.rename((item) => mayDo('rename', caller, item), singer);
 			if (renamed > 0) broadcast();
 			reply(ack, { ok: true, data: renamed });
 		});
-		socket.on('queue:requeue', (raw: unknown, ack?: unknown) => {
+		on('queue:requeue', (raw: unknown, ack?: unknown) => {
 			if (!guard('requeue', ack)) return;
 			const input = toRequeueInput(raw);
 			if (!input) return reply(ack, { ok: false, error: 'invalid' });
@@ -174,7 +207,7 @@ export function attachSocket(httpServer: HttpServer | Http2SecureServer): Server
 			broadcast();
 			reply(ack, { ok: true, data: item });
 		});
-		socket.on('queue:reorder', (raw: unknown, ack?: unknown) => {
+		on('queue:reorder', (raw: unknown, ack?: unknown) => {
 			if (!guard('reorder', ack)) return;
 			const ids = toIdList(raw);
 			if (!ids) return reply(ack, { ok: false, error: 'invalid' });
@@ -182,13 +215,13 @@ export function attachSocket(httpServer: HttpServer | Http2SecureServer): Server
 			broadcast();
 			reply(ack, { ok: true, data: undefined });
 		});
-		socket.on('playback:restart', (_: unknown, ack?: unknown) => {
+		on('playback:restart', (_: unknown, ack?: unknown) => {
 			if (!guard('restart', ack)) return;
 			party.restartCurrent();
 			broadcast();
 			reply(ack, { ok: true, data: undefined });
 		});
-		socket.on('playback:next', (raw: unknown, ack?: unknown) => {
+		on('playback:next', (raw: unknown, ack?: unknown) => {
 			const { current } = party.snapshot();
 			if (!guard('next', ack, current)) return;
 			const id = toId(raw);
@@ -203,12 +236,12 @@ export function attachSocket(httpServer: HttpServer | Http2SecureServer): Server
 			reply(ack, { ok: true, data: outcome });
 		});
 		// No answer and no broadcast: it only lets a later host Next tell a finish from a skip.
-		socket.on('playback:progress', (raw: unknown) => {
+		on('playback:progress', (raw: unknown) => {
 			if (!mayDo('progress', caller)) return;
 			const progress = toProgress(raw);
 			if (progress) party.noteProgress(progress.id, progress.time, progress.duration);
 		});
-		socket.on('playback:failed', (raw: unknown, ack?: unknown) => {
+		on('playback:failed', (raw: unknown, ack?: unknown) => {
 			if (!guard('fail', ack)) return;
 			const id = toId(raw);
 			if (id === null) return reply(ack, { ok: false, error: 'invalid' });
@@ -218,7 +251,7 @@ export function attachSocket(httpServer: HttpServer | Http2SecureServer): Server
 		});
 		// Its owner turned off embedding, but a download of it can still be sung, so it is
 		// not recorded as failed: it waits at the front of the line until the download is ready.
-		socket.on('playback:embed-blocked', (raw: unknown, ack?: unknown) => {
+		on('playback:embed-blocked', (raw: unknown, ack?: unknown) => {
 			if (!guard('fail', ack)) return;
 			const id = toId(raw);
 			if (id === null) return reply(ack, { ok: false, error: 'invalid' });
@@ -238,19 +271,19 @@ export function attachSocket(httpServer: HttpServer | Http2SecureServer): Server
 				broadcast
 			);
 		});
-		socket.on('playback:play', (_: unknown, ack?: unknown) => {
+		on('playback:play', (_: unknown, ack?: unknown) => {
 			if (!guard('play', ack)) return;
 			party.play();
 			broadcast();
 			reply(ack, { ok: true, data: undefined });
 		});
-		socket.on('playback:pause', (_: unknown, ack?: unknown) => {
+		on('playback:pause', (_: unknown, ack?: unknown) => {
 			if (!guard('pause', ack)) return;
 			party.pause();
 			broadcast();
 			reply(ack, { ok: true, data: undefined });
 		});
-		socket.on('queue:unremove', (raw: unknown, ack?: unknown) => {
+		on('queue:unremove', (raw: unknown, ack?: unknown) => {
 			if (!guard('undo', ack)) return;
 			const input = toUndoRemoval(raw);
 			if (!input) return reply(ack, { ok: false, error: 'invalid' });
@@ -261,7 +294,7 @@ export function attachSocket(httpServer: HttpServer | Http2SecureServer): Server
 		});
 		// Undo after Again. A requeue keeps the guest as owner, so queue:remove would tell
 		// them "Removed by the host" about a copy they never asked for.
-		socket.on('queue:unrequeue', (raw: unknown, ack?: unknown) => {
+		on('queue:unrequeue', (raw: unknown, ack?: unknown) => {
 			if (!guard('undo', ack)) return;
 			const id = toId(raw);
 			if (id === null) return reply(ack, { ok: false, error: 'invalid' });
@@ -270,7 +303,7 @@ export function attachSocket(httpServer: HttpServer | Http2SecureServer): Server
 			broadcast();
 			reply(ack, { ok: true, data: undefined });
 		});
-		socket.on('playback:unskip', (raw: unknown, ack?: unknown) => {
+		on('playback:unskip', (raw: unknown, ack?: unknown) => {
 			if (!guard('undo', ack)) return;
 			const id = toId(raw);
 			if (id === null) return reply(ack, { ok: false, error: 'invalid' });

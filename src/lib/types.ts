@@ -68,7 +68,7 @@ export interface Features {
 
 export type AckResult<T = unknown> =
 	| { ok: true; data: T }
-	| { ok: false; error: 'forbidden' | 'stale' | 'invalid' | 'failed' | 'disabled' };
+	| { ok: false; error: 'forbidden' | 'stale' | 'invalid' | 'full' | 'failed' | 'disabled' };
 
 /** The host settings any phone may read, through GET /api/party-settings. */
 export interface PartySettings {
@@ -92,7 +92,7 @@ export interface DisplaySettings {
 	musicLevel: number;
 }
 
-/** What every host phone's System button shows (F13). */
+/** What every host phone's System button shows. */
 export interface SystemState {
 	/** The host asked for the TV to be on (the kiosk flag file). */
 	isOn: boolean;

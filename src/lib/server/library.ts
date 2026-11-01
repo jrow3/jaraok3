@@ -110,24 +110,41 @@ export function buildSongRecords(paths: string[]): { records: SongRecord[]; stat
 	return { records, stats };
 }
 
+// AUTOINCREMENT so a deleted song's id is never handed to a new file: plays, stars and
+// queued songs still name the old id.
+const SONGS_COLUMNS = `
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	artist TEXT NOT NULL,
+	title TEXT NOT NULL,
+	disc_tag TEXT,
+	mp3_rel TEXT,
+	cdg_rel TEXT,
+	video_rel TEXT,
+	has_lyrics INTEGER NOT NULL,
+	offset_ms INTEGER NOT NULL DEFAULT 0
+`;
+
 const SCHEMA = `
-	DROP TABLE IF EXISTS songs_fts;
-	DROP TABLE IF EXISTS songs;
-	CREATE TABLE songs (
-		id INTEGER PRIMARY KEY,
-		artist TEXT NOT NULL,
-		title TEXT NOT NULL,
-		disc_tag TEXT,
-		mp3_rel TEXT,
-		cdg_rel TEXT,
-		video_rel TEXT,
-		has_lyrics INTEGER NOT NULL,
-		offset_ms INTEGER NOT NULL DEFAULT 0
-	);
-	CREATE VIRTUAL TABLE songs_fts USING fts5(
+	CREATE TABLE IF NOT EXISTS songs (${SONGS_COLUMNS});
+	CREATE VIRTUAL TABLE IF NOT EXISTS songs_fts USING fts5(
 		artist, title, content='songs', content_rowid='id', tokenize='trigram'
 	);
 `;
+
+// An index built before AUTOINCREMENT is copied into a table that has it, keeping every id.
+function migrateToAutoincrement(db: Database.Database): void {
+	const table = db.prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'songs'").get() as
+		| { sql: string }
+		| undefined;
+	if (!table || table.sql.includes('AUTOINCREMENT')) return;
+	db.exec(`
+		CREATE TABLE songs_next (${SONGS_COLUMNS});
+		INSERT INTO songs_next (id, artist, title, disc_tag, mp3_rel, cdg_rel, video_rel, has_lyrics, offset_ms)
+			SELECT id, artist, title, disc_tag, mp3_rel, cdg_rel, video_rel, has_lyrics, offset_ms FROM songs;
+		DROP TABLE songs;
+		ALTER TABLE songs_next RENAME TO songs;
+	`);
+}
 
 export interface BuildIndexOptions {
 	libraryPath: string;
@@ -153,6 +170,45 @@ function listMediaPaths(root: string): string[] {
 	return paths;
 }
 
+// Rows are matched by file, so a song keeps its id across rescans: the queue, stars and
+// play log all refer to songs by id.
+function syncSongs(db: Database.Database, rows: SongRecord[]): void {
+	migrateToAutoincrement(db);
+	db.exec(SCHEMA);
+	const known = db.prepare('SELECT id, COALESCE(mp3_rel, video_rel) AS rel FROM songs').all() as {
+		id: number;
+		rel: string;
+	}[];
+	const idByFile = new Map(known.map((row) => [row.rel, row.id]));
+	const insert = db.prepare(
+		`INSERT INTO songs (artist, title, disc_tag, mp3_rel, cdg_rel, video_rel, has_lyrics)
+		 VALUES (@artist, @title, @discTag, @mp3File, @cdgFile, @videoFile, @hasLyrics)`
+	);
+	const update = db.prepare(
+		`UPDATE songs SET artist = @artist, title = @title, disc_tag = @discTag, mp3_rel = @mp3File,
+		 cdg_rel = @cdgFile, video_rel = @videoFile, has_lyrics = @hasLyrics WHERE id = @id`
+	);
+	for (const row of rows) {
+		const values = {
+			artist: row.artist,
+			title: row.title,
+			discTag: row.discTag,
+			mp3File: row.mp3File,
+			cdgFile: row.cdgFile,
+			videoFile: row.videoFile,
+			hasLyrics: row.hasLyrics ? 1 : 0
+		};
+		const file = row.mp3File ?? row.videoFile ?? '';
+		const id = idByFile.get(file);
+		if (id === undefined) insert.run(values);
+		else update.run({ ...values, id });
+		idByFile.delete(file);
+	}
+	const remove = db.prepare('DELETE FROM songs WHERE id = ?');
+	for (const id of idByFile.values()) remove.run(id);
+	db.exec("INSERT INTO songs_fts(songs_fts) VALUES('rebuild')");
+}
+
 export function buildIndex({ libraryPath, dbPath }: BuildIndexOptions): IndexStats {
 	const { records, stats } = buildSongRecords(listMediaPaths(libraryPath));
 
@@ -160,27 +216,11 @@ export function buildIndex({ libraryPath, dbPath }: BuildIndexOptions): IndexSta
 	try {
 		db.pragma('journal_mode = WAL');
 		// One transaction, now that the app keeps running during a rescan: its searches
-		// read the old index until the new one is complete, never empty tables.
-		const rebuild = db.transaction((rows: SongRecord[]) => {
-			db.exec(SCHEMA);
-			const insert = db.prepare(
-				`INSERT INTO songs (artist, title, disc_tag, mp3_rel, cdg_rel, video_rel, has_lyrics)
-				 VALUES (@artist, @title, @discTag, @mp3File, @cdgFile, @videoFile, @hasLyrics)`
-			);
-			for (const row of rows) {
-				insert.run({
-					artist: row.artist,
-					title: row.title,
-					discTag: row.discTag,
-					mp3File: row.mp3File,
-					cdgFile: row.cdgFile,
-					videoFile: row.videoFile,
-					hasLyrics: row.hasLyrics ? 1 : 0
-				});
-			}
-			db.exec("INSERT INTO songs_fts(songs_fts) VALUES('rebuild')");
-		});
-		rebuild(records);
+		// read the old index until the new one is complete, never empty tables. Immediate,
+		// because it reads before it writes: a deferred one would fail with SQLITE_BUSY if the
+		// app wrote in between, where taking the write lock first waits out the busy timeout.
+		const rebuild = db.transaction((rows: SongRecord[]) => syncSongs(db, rows));
+		rebuild.immediate(records);
 	} finally {
 		db.close();
 	}

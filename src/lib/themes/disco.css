@@ -1,4 +1,4 @@
-/* Disco Vinyl (brand direction 02): an espresso room with sunset stripes, soft Fraunces
+/* Disco Vinyl: an espresso room with sunset stripes, soft Fraunces
    letters, square record sleeves, and things that arrive with a roller-skate overshoot. */
 
 @font-face {
@@ -84,8 +84,6 @@
 	--wm-3: linear-gradient(#e8a91c, #e8a91c);
 	--wm-effect: drop-shadow(0.04em 0.04em 0 #b5421f);
 	--wm-tile: none;
-	/* Chivo Mono is wide: at 0.2em "Scan to sing" wrapped under the rail's code. */
-	--label-tracking: 0.1em;
 
 	--r-xs: 0;
 	--r-sm: 2px;
@@ -104,7 +102,6 @@
 	/* Espresso letters (--on-brand) read on the gold and orange where white can't; the rust
 	   foot is lifted from #b5421f so they read there too. */
 	--brand-gradient: linear-gradient(135deg, #e8a91c 0%, #e0701f 50%, #db552b 100%);
-	--warn-gradient: linear-gradient(135deg, #e8a91c, #e0701f);
 	--card-edge: 2px solid #3b2116;
 	--card-edge-strong: 2px solid #e8a91c;
 	--shadow-card: 4px 4px 0 #5a3522;
@@ -115,7 +112,6 @@
 	--tv-radius: 0.4vh;
 	--tv-radius-sm: 0.2vh;
 	--tv-glass: rgba(34, 19, 12, 0.84);
-	--tv-glass-quiet: rgba(34, 19, 12, 0.6);
 	--tv-dim: rgba(20, 11, 7, 0.7);
 	--tv-scrim: rgba(34, 19, 12, 0.6);
 	--tv-qr-plate: #fbf1dc;

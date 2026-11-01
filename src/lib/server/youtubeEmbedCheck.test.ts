@@ -1,7 +1,5 @@
 import { describe, test, expect, vi } from 'vitest';
 
-vi.mock('$env/dynamic/private', () => ({ env: {} }));
-
 // Stands in for yt-dlp when none of its clients returns formats for the video (seen with
 // the web clients and no JS runtime): the metadata is there, but without
 // --ignore-no-formats-error the run fails with "Requested format is not available".

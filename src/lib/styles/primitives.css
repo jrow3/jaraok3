@@ -168,10 +168,6 @@
 	background: var(--tag-neutral);
 }
 
-.tag-dl {
-	color: var(--warn);
-	background: var(--warn-a14);
-}
 
 /* Scoped rules outrank this class, so an element that uses it sets no font-weight of its own. */
 .headline {

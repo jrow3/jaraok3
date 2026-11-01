@@ -29,7 +29,11 @@
 	let frameId = 0;
 	let isAudioOnly = $state(false);
 
+	const loading = new AbortController();
+
 	function draw() {
+		// A lone mp3 never gets graphics; no need to wake 60 times a second for it.
+		if (isAudioOnly) return;
 		frameId = requestAnimationFrame(draw);
 		if (!graphics || !context) return;
 		const frame = graphics.render(audio.currentTime);
@@ -40,35 +44,29 @@
 		frameId = requestAnimationFrame(draw);
 	}
 	const stopDrawing = () => cancelAnimationFrame(frameId);
-	let isDestroyed = false;
-	// A restart or a tap-to-start retry remounts the player for the same song id, so an old
-	// player's late failure would pass the stage's id check and skip a song that plays.
-	const reportFailure = () => {
-		if (!isDestroyed) onfailed?.();
-	};
 
 	onMount(async () => {
 		context = canvas.getContext('2d');
-		// Uncaught, a lyrics load that breaks leaves the audio playing over a black canvas (B12).
+		// Uncaught, a lyrics load that breaks leaves the audio playing over a black canvas.
 		try {
-			const response = await fetch(`/media/${songId}.cdg`);
+			const response = await fetch(`/media/${songId}.cdg`, { signal: loading.signal });
 			// A lone mp3 has no lyrics graphics; the media server answers 404 and it plays over the audio-only card.
 			if (response.status === 404) {
 				isAudioOnly = true;
 				return;
 			}
 			if (!response.ok) {
-				reportFailure();
+				onfailed?.();
 				return;
 			}
 			const [{ default: Graphics }, buffer] = await Promise.all([import('cdgraphics'), response.arrayBuffer()]);
 			graphics = new Graphics(buffer);
 		} catch {
-			reportFailure();
+			if (!loading.signal.aborted) onfailed?.();
 		}
 	});
 	onDestroy(() => {
-		isDestroyed = true;
+		loading.abort();
 		stopDrawing();
 	});
 
@@ -101,7 +99,7 @@
 			stopDrawing();
 			onended?.();
 		}}
-		onerror={reportFailure}
+		onerror={() => onfailed?.()}
 		ontimeupdate={() => ontime?.(audio.currentTime, audio.duration || 0)}
 	></audio>
 </div>
@@ -115,7 +113,7 @@
 		overflow: hidden;
 	}
 	/* The lyrics keep their true 300:216 shape, centered at full height; the black player
-	   behind them fills the bands at the sides instead of stretching them to 16:9 (B11). */
+	   behind them fills the bands at the sides instead of stretching them to 16:9. */
 	canvas {
 		height: 100%;
 		margin: 0 auto;

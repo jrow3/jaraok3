@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Party } from '$lib/party.svelte';
 	import { toast } from '$lib/toast.svelte';
-	import { COULD_NOT_ADD, COULD_NOT_SAVE } from '$lib/messages';
+	import { addFailedMessage, COULD_NOT_SAVE } from '$lib/messages';
 	import { libraryInput } from '$lib/features/search/api';
 	import type { SearchResult } from '$lib/features/search/types';
 	import type { HostSettings } from '../hostSettings.svelte';
@@ -21,8 +21,8 @@
 	async function addLibrarySong(song: SearchResult) {
 		try {
 			await party.add(libraryInput(song, controls.singerName));
-		} catch {
-			toast(COULD_NOT_ADD, { kind: 'err' });
+		} catch (error) {
+			toast(addFailedMessage(error), { kind: 'err' });
 			return;
 		}
 		controls.clear();
@@ -39,7 +39,7 @@
 
 <div class="tab">
 	<NowPlaying {party} {settings} ontogglestar={toggleStar} />
-	<!-- Right under the now card, so a one-handed host reaches it without scrolling past the line (L2). -->
+	<!-- Right under the now card, so a one-handed host reaches it without scrolling past the line. -->
 	<AddSong {party} {controls} onadd={addLibrarySong} ontogglestar={toggleStar} />
 	<UpNext {party} {settings} />
 	<RecentlyPlayed {party} {settings} ontogglestar={toggleStar} />

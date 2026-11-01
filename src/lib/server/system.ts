@@ -11,7 +11,7 @@ function systemState(io: Server): SystemState {
 	};
 }
 
-// The System button (F13): "on" counts only once a TV screen has actually connected,
+// The System button: "on" counts only once a TV screen has actually connected,
 // and every host phone hears each change, so two phones never disagree. By the time
 // a socket's "disconnect" fires it has already left its rooms.
 export function attachSystem(io: Server, socket: Socket, caller: Caller): void {

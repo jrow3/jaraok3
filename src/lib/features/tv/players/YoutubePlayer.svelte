@@ -14,22 +14,31 @@
 		/** The Sound tab's Music fader, 0..100. */
 		volume: number;
 		onended?: () => void;
-		onfailed?: (errorCode: number) => void;
+		onfailed?: (errorCode?: number) => void;
 		ontime?: (current: number, duration: number) => void;
 	} = $props();
 
 	const YT_ENDED = 0;
+	// The iframe API comes from youtube.com; past this, the network has failed it.
+	const API_TIMEOUT_MS = 15_000;
 
 	let host: HTMLDivElement;
 	let player: YtPlayer | null = null;
 	let isReady = $state(false);
 	let timeTimer: ReturnType<typeof setInterval> | null = null;
+	let isDestroyed = false;
 
 	function loadApi(): Promise<NonNullable<Window['YT']>> {
 		if (window.YT?.Player) return Promise.resolve(window.YT);
-		return new Promise((resolve) => {
+		return new Promise((resolve, reject) => {
 			const previous = window.onYouTubeIframeAPIReady;
+			const timeout = setTimeout(() => {
+				// Gone, so the next YouTube song tries the script again.
+				document.getElementById('yt-iframe-api')?.remove();
+				reject(new Error('YouTube iframe API did not load'));
+			}, API_TIMEOUT_MS);
 			window.onYouTubeIframeAPIReady = () => {
+				clearTimeout(timeout);
 				previous?.();
 				if (window.YT) resolve(window.YT);
 			};
@@ -43,7 +52,15 @@
 	}
 
 	onMount(async () => {
-		const YT = await loadApi();
+		let YT: NonNullable<Window['YT']>;
+		try {
+			YT = await loadApi();
+		} catch {
+			if (!isDestroyed) onfailed?.();
+			return;
+		}
+		// Skipped while the API loaded: a player made now would outlive the stage.
+		if (isDestroyed) return;
 		player = new YT.Player(host, {
 			videoId,
 			playerVars: { autoplay: 0, controls: 0, rel: 0, modestbranding: 1, playsinline: 1 },
@@ -64,6 +81,7 @@
 		});
 	});
 	onDestroy(() => {
+		isDestroyed = true;
 		if (timeTimer) clearInterval(timeTimer);
 		player?.destroy();
 	});

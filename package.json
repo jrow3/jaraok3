@@ -7,25 +7,26 @@
 		"url": "https://github.com/jrow3/jaraok3.git"
 	},
 	"private": true,
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
-		"build": "vite build",
+		"build": "vite build && npm run build:node",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"build:node": "esbuild server.js src/lib/server/reindexJob.ts --bundle --platform=node --format=esm --packages=external --external:#handler --entry-names=[name] --outdir=build/node"
 	},
 	"devDependencies": {
-		"@sveltejs/adapter-auto": "^7.0.1",
 		"@sveltejs/adapter-node": "^5.5.7",
 		"@sveltejs/kit": "^2.63.0",
 		"@sveltejs/vite-plugin-svelte": "^7.1.2",
 		"@types/better-sqlite3": "^9.6.0",
 		"@types/qrcode": "1.5.6",
+		"esbuild": "^0.28.2",
 		"svelte": "^5.56.1",
 		"svelte-check": "^4.6.0",
 		"tsx": "^4.23.11",
@@ -39,5 +40,8 @@
 		"qrcode": "1.5.4",
 		"socket.io": "^4.8.3",
 		"socket.io-client": "^4.8.3"
+	},
+	"imports": {
+		"#handler": "./build/handler.js"
 	}
 }

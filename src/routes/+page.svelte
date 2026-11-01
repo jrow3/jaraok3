@@ -3,14 +3,14 @@
 	import { onMount } from 'svelte';
 	import { connectParty, type PartyActionError } from '$lib/party.svelte';
 	import { toast } from '$lib/toast.svelte';
-	import { COULD_NOT_ADD, COULD_NOT_DO, COULD_NOT_REMOVE, COULD_NOT_RENAME } from '$lib/messages';
+	import { addFailedMessage, COULD_NOT_DO, COULD_NOT_REMOVE, COULD_NOT_RENAME } from '$lib/messages';
 	import Chip from '$lib/components/ui/Chip.svelte';
 	import ConnectionStrip from '$lib/components/ui/ConnectionStrip.svelte';
 	import Toasts from '$lib/components/ui/Toasts.svelte';
 	import Wordmark from '$lib/components/ui/Wordmark.svelte';
 	import { ADDED_HOLD_MS, createAddTracker, songAddKey, type AddPhase } from '$lib/features/search/addTracker';
 	import { libraryInput } from '$lib/features/search/api';
-	import type { Seed } from '$lib/features/search/suggestions';
+	import { MAX_SEEDS, type Seed } from '$lib/features/search/suggestions';
 	import type { SearchResult } from '$lib/features/search/types';
 	import GuestLineup from '$lib/features/guest/GuestLineup.svelte';
 	import GuestSearch from '$lib/features/guest/GuestSearch.svelte';
@@ -27,7 +27,6 @@
 	const SINGER_KEY = 'karaoke:singer';
 	const SEEDS_KEY = 'karaoke:myseeds';
 	const HAS_ADDED_KEY = 'karaoke:has-added';
-	const MAX_SEEDS = 20;
 	const UNDO_WINDOW_MS = 5000;
 
 	const party = connectParty('guest');
@@ -38,7 +37,7 @@
 	let singer = $state('');
 	let nameDraft = $state('');
 	// Stays false until the browser has read the saved name, so a returning guest
-	// never sees the name form flash (X3).
+	// never sees the name form flash.
 	let isNameKnown = $state(false);
 	let isEditingName = $state(false);
 	let hasAdded = $state(false);
@@ -54,8 +53,7 @@
 		nameDraft = singer;
 		isEditingName = !singer;
 		hasAdded = localStorage.getItem(HAS_ADDED_KEY) === '1';
-		seeds = JSON.parse(localStorage.getItem(SEEDS_KEY) ?? '[]');
-		localStorage.removeItem('karaoke:mine');
+		seeds = readSeeds();
 		isNameKnown = true;
 		nextAlert.load();
 	});
@@ -65,6 +63,16 @@
 	$effect(() => {
 		if (party.received && party.ownerTag) nextAlert.check(mySongs);
 	});
+
+	// A value this page can't read would leave the page on its spinner; it starts over instead.
+	function readSeeds(): Seed[] {
+		try {
+			const saved = JSON.parse(localStorage.getItem(SEEDS_KEY) ?? '[]');
+			return Array.isArray(saved) ? saved : [];
+		} catch {
+			return [];
+		}
+	}
 
 	function rememberSeed(song: SearchResult) {
 		seeds = [
@@ -89,8 +97,8 @@
 		let item: QueueItem | null;
 		try {
 			item = await adds.run(songAddKey(song.id), () => party.add(libraryInput(song, singer)));
-		} catch {
-			toast(COULD_NOT_ADD, { kind: 'err' });
+		} catch (error) {
+			toast(addFailedMessage(error), { kind: 'err' });
 			return null;
 		}
 		if (!item) return null;

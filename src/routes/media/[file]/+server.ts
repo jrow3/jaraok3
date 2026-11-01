@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import { env } from '$env/dynamic/private';
 import { getDb } from '$lib/server/db';
 import { getSong } from '$lib/server/search';
+import { parseByteRange } from './byteRange';
 
 // Resolves a song id to its file in the library and streams the bytes with HTTP
 // Range support (media elements stall on a fully buffered response).
@@ -37,16 +38,13 @@ export const GET: RequestHandler = ({ params, request }) => {
 	const toWeb = (start?: number, end?: number) =>
 		Readable.toWeb(createReadStream(path, { start, end })) as ReadableStream<Uint8Array>;
 
-	const range = request.headers.get('range');
+	const header = request.headers.get('range');
+	const range = header ? parseByteRange(header, size) : undefined;
+	if (range === null) {
+		return new Response(null, { status: 416, headers: { 'content-range': `bytes */${size}` } });
+	}
 	if (range) {
-		const parts = /bytes=(\d*)-(\d*)/.exec(range);
-		let start = parts && parts[1] ? parseInt(parts[1], 10) : 0;
-		let end = parts && parts[2] ? parseInt(parts[2], 10) : size - 1;
-		if (Number.isNaN(start)) start = 0;
-		if (Number.isNaN(end) || end >= size) end = size - 1;
-		if (start > end || start >= size) {
-			return new Response(null, { status: 416, headers: { 'content-range': `bytes */${size}` } });
-		}
+		const { start, end } = range;
 		return new Response(toWeb(start, end), {
 			status: 206,
 			headers: {

@@ -84,7 +84,7 @@ What's switched off doesn't show on any page, and the server refuses it too.
 
 ## Architecture
 
-SvelteKit 5 (adapter-node) built and wrapped by a small `server.js` that adds Socket.io: party state
+SvelteKit 2 and Svelte 5 (adapter-node) built and wrapped by a small `server.js` that adds Socket.io: party state
 (current song, queue, history) lives in memory on the server, and every client role (`guest`,
 `display`, `control`) receives live snapshots over `/ws`. The library index is better-sqlite3 with
 FTS5; media is served with HTTP Range support. On the display, [cdgraphics](https://github.com/bhj/cdgraphics)
@@ -122,7 +122,7 @@ Then open:
 | URL | Screen |
 | --- | --- |
 | `http://<server>:3000/` | Guest page: this is what the QR points at |
-| `http://<server>:3000/display` | Fullscreen TV display |
+| `http://<server>:3000/display?t=<DISPLAY_TOKEN>` | Fullscreen TV display |
 | `http://<server>:3000/admin` | Host controls (your PIN) |
 
 [`DEPLOY.md`](DEPLOY.md) covers publishing it for guests on mobile data, updating, and YouTube

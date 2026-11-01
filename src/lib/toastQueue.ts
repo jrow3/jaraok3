@@ -16,9 +16,9 @@ export interface ToastOptions {
 	duration?: number;
 }
 
-export const DEFAULT_DURATION_MS = 3200;
+const DEFAULT_DURATION_MS = 3200;
 // Long enough to read the message and reach the Undo button.
-export const ACTION_DURATION_MS = 6000;
+const ACTION_DURATION_MS = 6000;
 
 export function createToaster(list: ToastMsg[]) {
 	let nextId = 0;
@@ -30,6 +30,9 @@ export function createToaster(list: ToastMsg[]) {
 
 	function show(text: string, options: ToastOptions = {}) {
 		const { kind = 'ok', action } = options;
+		// A drag that fails on every move would otherwise stack one toast per move.
+		const showing = action ? undefined : list.find((t) => !t.action && t.text === text && t.kind === kind);
+		if (showing) return showing.id;
 		const duration = options.duration ?? (action ? ACTION_DURATION_MS : DEFAULT_DURATION_MS);
 		const id = ++nextId;
 		list.push({ id, text, kind, action });
@@ -44,5 +47,5 @@ export function createToaster(list: ToastMsg[]) {
 		toast.action.run();
 	}
 
-	return { show, dismiss, runAction };
+	return { show, runAction };
 }

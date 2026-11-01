@@ -111,14 +111,16 @@ export function createMixer(io: Server, store: MixerStore) {
 			try {
 				if (unsaved) store.save(unsaved);
 				unsaved = null;
-			} catch {
+			} catch (error) {
 				// The next settle tries the write again.
+				console.error('[mixer] could not save the mixer:', error);
 			}
 			try {
 				applyStage();
-			} catch {
+			} catch (error) {
 				// A missing control folder or database (dev, or a broken mount) only means the
 				// agent catches up later.
+				console.error('[mixer] could not hand the sound to the agent:', error);
 			}
 		}, SETTLE_MS);
 	}

@@ -18,6 +18,7 @@ export function createControlsState() {
 		isLoading: false,
 		hasError: false
 	});
+	let suggestionTicket = 0;
 	const search = createSearch(library, (text) => fetchLibrary(text), NO_LIBRARY_RESULTS);
 
 	return {
@@ -64,8 +65,11 @@ export function createControlsState() {
 			youtubeVideos = [];
 			search.clear();
 		},
+		// Only the latest request lands: a slow earlier answer must not replace a newer one.
 		loadSuggestions: async (party: PartySnapshot) => {
-			suggestions = await fetchSuggestions(buildSuggestRequest(party));
+			const mine = ++suggestionTicket;
+			const results = await fetchSuggestions(buildSuggestRequest(party));
+			if (mine === suggestionTicket) suggestions = results;
 		}
 	};
 }

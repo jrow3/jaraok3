@@ -33,12 +33,13 @@ each file came from. Turn the whole feature off with `DOWNLOADS=off` in `.env`.
 ## Renaming old `[YouTube]` downloads (one-off)
 
 Downloads made before files were tagged with their channel are named `[YouTube]`. To
-rename them once, from inside the container (replace `karaoke` with your container name):
+rename them once, from inside the container (replace `karaoke` with your container name).
+The image carries neither the source nor tsx, so copy the one in and let npx fetch the other:
 
 ```bash
-docker cp scripts karaoke:/app/
-docker exec karaoke npx tsx scripts/rename-downloads.ts           # lists what it would rename
-docker exec karaoke npx tsx scripts/rename-downloads.ts --apply   # renames them
+docker cp scripts karaoke:/app/ && docker cp src karaoke:/app/
+docker exec karaoke npx --yes tsx scripts/rename-downloads.ts           # lists what it would rename
+docker exec karaoke npx --yes tsx scripts/rename-downloads.ts --apply   # renames them
 ```
 
 It asks YouTube for each video's channel (2 s apart), renames the file and updates the

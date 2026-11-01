@@ -1,5 +1,8 @@
-// One phrase per failure, shared by the guest and host pages (audit C5).
+import { PartyActionError } from './party.svelte';
+
+// One phrase per failure, shared by the guest and host pages.
 export const COULD_NOT_ADD = 'Couldn\u2019t add that. Check your connection and try again.';
+export const QUEUE_FULL = 'The lineup is full. Try again once a few songs have played.';
 export const CANT_PLAY_HERE = 'That video can\u2019t play here. Try another version.';
 export const COULD_NOT_REMOVE = 'Couldn\u2019t remove it. Check your connection and try again.';
 export const COULD_NOT_DO = 'Couldn\u2019t do that. Check your connection and try again.';
@@ -10,3 +13,11 @@ export const SESSION_ENDED = 'Your host sign-in ran out, so your last change was
 export const RESCAN_SESSION_ENDED = 'Your host sign-in ran out, so the library wasn\u2019t rescanned. Enter the PIN to carry on.';
 export const TOO_LATE_TO_UNDO = 'Too late to undo that.';
 export const YTDLP_SESSION_ENDED = 'Your host sign-in ran out, so yt-dlp wasn\u2019t updated. Enter the PIN to carry on.';
+
+export function addFailedMessage(error: unknown): string {
+	if (!(error instanceof PartyActionError)) return COULD_NOT_ADD;
+	if (error.code === 'full') return QUEUE_FULL;
+	// "disabled": it blocks embedding and this install doesn't download (DOWNLOADS=off).
+	if (error.code === 'disabled') return CANT_PLAY_HERE;
+	return COULD_NOT_ADD;
+}
