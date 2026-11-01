@@ -29,7 +29,8 @@ logYoutubeCookies();
 export const handle: Handle = async ({ event, resolve }) => {
 	const pin = env.ADMIN_PIN ?? '';
 	// The route id, not the raw pathname: routing decodes the path, so /api/%73ettings
-	// would reach /api/settings while slipping past a check on the encoded string.
+	// would reach /api/settings while slipping past a check on the encoded string. A route
+	// id keeps its (group) folders, so a guarded route moved into one must be listed with it.
 	const route = event.route.id ?? '';
 	if (pin && isUnder(route, GUARDED) && !verifyToken(event.cookies.get(COOKIE_NAME), pin)) {
 		return json({ error: 'unauthorized' }, { status: 401 });
