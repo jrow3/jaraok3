@@ -3,11 +3,12 @@ import { resolve } from 'node:path';
 import type { IndexStats } from './library';
 
 // From the working directory: the server, the dev server and the tests all run from the
-// project root. Production runs the job `npm run build` bundled; dev and tests the source.
-const JOB =
-	process.env.NODE_ENV === 'production'
-		? [resolve('build/node/reindexJob.js')]
-		: ['--import', 'tsx', resolve('src/lib/server/reindexJob.ts')];
+// project root. Running from source (this module is still .ts) runs the job's source too;
+// a build runs the job `npm run build` bundled, whatever NODE_ENV says.
+const isFromSource = import.meta.url.endsWith('.ts');
+const JOB = isFromSource
+	? ['--import', 'tsx', resolve('src/lib/server/reindexJob.ts')]
+	: [resolve('build/node/reindexJob.js')];
 
 // A full rescan of even a ~100k-song library is normally well under this. A scan stuck on
 // a slow or unplugged drive would otherwise hold every later rescan behind it.
